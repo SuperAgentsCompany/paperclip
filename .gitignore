@@ -1,21 +1,47 @@
-node_modules
 node_modules/
+dist/
+dist-ssr/
+build/
+*.log
+*.tmp
+.env
+env*.txt
+*_env.txt
+*_env.json
+__pycache__/
+.vscode/
+.idea/
+.DS_Store
+gemini-client-error-*.json
+shell_pgrep_*.tmp
+comment.json
+hire_cto.json
+hiring_plan.json
+hp_update.json
+plan_update.json
+update_plan.json
+updated_plan.json
+report.md
+CEO_REPORT.md
+GEMMA4_EVALUATION_REPORT.md
+hire_agent.sh
+create_cto_task.sh
+test_env.sh
+refactor.sh
+patch_issue.py
+en_jp_teaching_data.jsonl
+gemma-en-jp-adapter/
 **/node_modules
 **/node_modules/
-dist/
-.env
 *.tsbuildinfo
 drizzle/meta/
 .vite/
 coverage/
-.DS_Store
 data/
 .paperclip/
 .pnpm-store/
 tmp-*
 cli/tmp/
-
-# Scratch/seed scripts (but not scripts/ dir)
 check-*.mjs
 !scripts/check-*.mjs
 new-agent*.json
@@ -24,30 +50,18 @@ seed-*.mjs
 server/check-*.mjs
 server/seed-*.mjs
 packages/db/seed-*.mjs
-
-# npm publish build artifacts
 cli/package.dev.json
-
-# Build artifacts in src directories
 server/src/**/*.js
 server/src/**/*.js.map
 server/src/**/*.d.ts
 server/src/**/*.d.ts.map
 tmp/
 feedback-export-*
-
-# Editor / tool temp files
-*.tmp
-.vscode/
 .claude/settings.local.json
 .paperclip-local/
 /.idea/
 /.agents/
-
-# Doc maintenance cursor
 .doc-review-cursor
-
-# Playwright
 tests/e2e/test-results/
 tests/e2e/playwright-report/
 tests/release-smoke/test-results/

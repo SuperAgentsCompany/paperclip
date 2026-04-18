@@ -1,0 +1,9 @@
+entities:
+  - id: 2ba73ce3-575c-4e2f-93c1-3f6fc21081d8
+    name: UX Designer
+    role: UX/UI Designer
+    status: active
+    last_interaction: 2026-04-18
+    facts:
+      - id: fact_ux_hired
+        content: Hired as the founding UX/UI Designer after Board approval (SUPAA-2).
