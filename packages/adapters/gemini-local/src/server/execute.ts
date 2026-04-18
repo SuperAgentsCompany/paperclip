@@ -214,6 +214,23 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   for (const [key, value] of Object.entries(envConfig)) {
     if (typeof value === "string") env[key] = value;
   }
+
+  // Ensure Gemini API keys are explicitly passed in the env object,
+  // and prevent conflicts if both are present in the host environment.
+  const hostGeminiKey = process.env.GEMINI_API_KEY;
+  const hostGoogleKey = process.env.GOOGLE_API_KEY;
+  if (!env.GEMINI_API_KEY && !env.GOOGLE_API_KEY) {
+    if (hostGeminiKey) {
+      env.GEMINI_API_KEY = hostGeminiKey;
+      if (hostGoogleKey) env.GOOGLE_API_KEY = ""; // Mask conflict
+    } else if (hostGoogleKey) {
+      env.GOOGLE_API_KEY = hostGoogleKey;
+    }
+  } else if (env.GEMINI_API_KEY && (env.GOOGLE_API_KEY || hostGoogleKey)) {
+    // If we have GEMINI_API_KEY (from config), mask any GOOGLE_API_KEY
+    env.GOOGLE_API_KEY = "";
+  }
+
   if (!hasExplicitApiKey && authToken) {
     env.PAPERCLIP_API_KEY = authToken;
   }
@@ -255,7 +272,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   }
 
   const instructionsFilePath = asString(config.instructionsFilePath, "").trim();
-  const instructionsDir = instructionsFilePath ? `${path.dirname(instructionsFilePath)}/` : "";
+  const instructionsDir = instructionsFilePath ? path.dirname(instructionsFilePath) : "";
   let instructionsPrefix = "";
   if (instructionsFilePath) {
     try {
@@ -328,7 +345,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     heartbeatPromptChars: renderedPrompt.length,
   };
 
-  const buildArgs = (resumeSessionId: string | null) => {
+  const buildArgs = async (resumeSessionId: string | null) => {
     const args = ["--output-format", "stream-json"];
     if (resumeSessionId) args.push("--resume", resumeSessionId);
     if (model && model !== DEFAULT_GEMINI_LOCAL_MODEL) args.push("--model", model);
@@ -339,12 +356,51 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       args.push("--sandbox=none");
     }
     if (extraArgs.length > 0) args.push(...extraArgs);
+
+    if (instructionsDir) {
+      try {
+        const stat = await fs.stat(instructionsDir);
+        if (stat.isDirectory()) args.push("--include-directories", instructionsDir);
+      } catch (e) {
+        // Directory doesn't exist, ignore
+      }
+    }
+    
+    if (agentHome && agentHome !== cwd && agentHome !== instructionsDir) {
+      try {
+        const stat = await fs.stat(agentHome);
+        if (stat.isDirectory()) args.push("--include-directories", agentHome);
+      } catch (e) {
+        // Directory doesn't exist, ignore
+      }
+    }
+    
+    try {
+      const tmpStat = await fs.stat("/tmp");
+      if (tmpStat.isDirectory()) args.push("--include-directories", "/tmp");
+    } catch (e) {
+      // Ignore
+    }
+
     args.push("--prompt", prompt);
     return args;
   };
 
   const runAttempt = async (resumeSessionId: string | null) => {
-    const args = buildArgs(resumeSessionId);
+    const args = await buildArgs(resumeSessionId);
+
+    try {
+      const allowedPrefixes = ["PAPERCLIP_", "GEMINI_", "GOOGLE_", "AGENT_"];
+      const envLines = Object.entries(env)
+        .filter(([k]) => k in envConfig || allowedPrefixes.some((prefix) => k.startsWith(prefix)))
+        .map(([k, v]) => `${k}=${v}`);
+      if (envLines.length > 0) {
+        await fs.writeFile(path.join(cwd, ".env"), envLines.join("\n"));
+      }
+    } catch (e) {
+      if (onLog) await onLog("stderr", `[paperclip] Failed to write .env file for Gemini sandbox: ${e instanceof Error ? e.message : String(e)}\n`);
+    }
+
     if (onMeta) {
       await onMeta({
         adapterType: "gemini_local",

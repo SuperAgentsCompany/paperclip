@@ -71,6 +71,19 @@ export async function testEnvironment(
   for (const [key, value] of Object.entries(envConfig)) {
     if (typeof value === "string") env[key] = value;
   }
+
+  // Prevent Gemini CLI from crashing if both keys are present in the host environment.
+  if (
+    (env.GEMINI_API_KEY || process.env.GEMINI_API_KEY) &&
+    (env.GOOGLE_API_KEY || process.env.GOOGLE_API_KEY)
+  ) {
+    if (!envConfig.GOOGLE_API_KEY) {
+      // If the user didn't explicitly request GOOGLE_API_KEY in the adapter config,
+      // mask it out so `runChildProcess` doesn't inherit it from process.env and crash.
+      env.GOOGLE_API_KEY = "";
+    }
+  }
+
   const runtimeEnv = ensurePathInEnv({ ...process.env, ...env });
   try {
     await ensureCommandResolvable(command, cwd, runtimeEnv);
