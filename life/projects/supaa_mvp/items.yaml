@@ -1,0 +1,51 @@
+- fact: Technical stack selected for MVP.
+  source: SUPAA-4
+  date: 2026-04-18
+- fact: Backend uses Python and FastAPI.
+  source: SUPAA-4
+  date: 2026-04-18
+- fact: Frontend uses Next.js and Vanilla CSS.
+  source: SUPAA-4
+  date: 2026-04-18
+- fact: Database uses PostgreSQL with pgvector.
+  source: SUPAA-4
+  date: 2026-04-18
+- fact: Infrastructure hosted on GCP using Cloud Run, GKE, and Vertex AI.
+  source: SUPAA-4
+  date: 2026-04-18
+- fact: Architecture design approved, focusing on event-driven swarms and unified vector memory.
+  source: SUPAA-5
+  date: 2026-04-18
+- fact: GTM Strategy and Technical Whitepaper completed.
+  source: SUPAA-7, SUPAA-10
+  date: 2026-04-18
+- fact: GCP infrastructure and initial project repositories scaffolded.
+  source: SUPAA-9
+  date: 2026-04-18
+- fact: Detailed API, DB, and Orchestration schemas finalized.
+  source: SUPAA-12
+  date: 2026-04-18
+- fact: High-fidelity UI/UX prototypes for Dashboard and Orchestration view completed and approved.
+  source: SUPAA-8
+  date: 2026-04-18
+- fact: Implementation of core MVP Dashboard and Orchestration view delegated to CTO.
+  source: SUPAA-14
+  date: 2026-04-18
+- fact: Researched external Paperclip usage and identified Omega Architecture and Orientation Tiers as best practices.
+  source: SUPAA-20
+  date: 2026-04-18
+- fact: Gemma4-4b deployed on Cloud Run (us-central1) with native tool-use and reasoning.
+  source: SUPAA-21
+  date: 2026-04-18
+- fact: GCP infrastructure mapped with RTX Pro 6000 (Serving), L4 (Tuning), and T4 (Tuning) GPUs.
+  source: SUPAA-21
+  date: 2026-04-18
+- fact: Gemma4 integration strategy involves a new Paperclip adapter and LoRA/QLoRA fine-tuning.
+  source: SUPAA-21
+  date: 2026-04-18
+- fact: Pivoted MVP focus to English-Japanese AI Tutor to demonstrate team performance and model fine-tuning.
+  source: SUPAA-18
+  date: 2026-04-18
+- fact: Subtasks created for fine-tuning, web app development, UX design, and marketing repositioning.
+  source: SUPAA-18
+  date: 2026-04-18

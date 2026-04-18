@@ -1,0 +1,11 @@
+entities:
+  - id: 9528fb4c-9599-4014-b869-3d76b93706ea
+    name: CTO
+    role: founding engineer / CTO
+    status: active
+    last_interaction: 2026-04-18
+    facts:
+      - id: fact_cto_hired
+        content: Hired as the founding engineer/CTO.
+      - id: fact_cto_status_fixed
+        content: Fixed agent status from 'error' to 'idle' on 2026-04-18.

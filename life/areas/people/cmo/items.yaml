@@ -1,0 +1,9 @@
+entities:
+  - id: 6789bac6-424d-4f37-b11b-925bef7c0588
+    name: CMO
+    role: Chief Marketing Officer
+    status: active
+    last_interaction: 2026-04-18
+    facts:
+      - id: fact_cmo_hired
+        content: Hired as the Chief Marketing Officer.

@@ -1,0 +1,214 @@
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
+  grid-template-rows: 60px 1fr 60px;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--color-quantum-blue-deep);
+}
+
+.top-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-sm);
+  background-color: var(--color-quantum-blue-light);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-left {
+  grid-column: 1;
+  grid-row: 2;
+  background-color: var(--color-quantum-blue-deep);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  overflow-y: auto;
+}
+
+.main-content {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.sidebar-right {
+  grid-column: 3;
+  grid-row: 2;
+  background-color: var(--color-quantum-blue-deep);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--spacing-sm);
+  overflow-y: auto;
+}
+
+.bottom-bar {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  background-color: var(--color-quantum-blue-light);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-sm);
+}
+
+/* Chat Styles */
+.chat-window {
+  flex: 1;
+  padding: var(--spacing-sm);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.chat-input-container {
+  padding: var(--spacing-sm);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.chat-input {
+  flex: 1;
+  background: var(--color-quantum-blue-light);
+  border: 1px solid var(--color-nebula-gray);
+  border-radius: 4px;
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-family: var(--font-primary);
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--color-electric-cyan);
+}
+
+.send-button {
+  background-color: var(--color-electric-cyan);
+  color: var(--color-quantum-blue-deep);
+  border: none;
+  border-radius: 4px;
+  padding: 0 var(--spacing-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Bubble Styles */
+.bubble {
+  max-width: 80%;
+  padding: var(--spacing-sm);
+  border-radius: 8px;
+  position: relative;
+}
+
+.bubble.user {
+  align-self: flex-end;
+  background-color: var(--color-quantum-blue-light);
+  border: 1px solid var(--color-electric-cyan);
+}
+
+.bubble.tutor {
+  align-self: flex-start;
+  background-color: var(--color-quantum-blue-light);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.reasoning-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-thought-purple);
+  cursor: pointer;
+  margin-top: 8px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.reasoning-content {
+  margin-top: 8px;
+  padding: var(--spacing-sm);
+  background-color: var(--color-thought-purple);
+  color: white;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: var(--font-mono);
+}
+
+/* Reasoning Sidebar Styles */
+.thought-node {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-left: 2px solid var(--color-nebula-gray);
+  margin-bottom: var(--spacing-sm);
+  font-size: 14px;
+  color: var(--color-nebula-gray);
+  transition: all 0.3s ease;
+}
+
+.thought-node.active {
+  border-left-color: var(--color-electric-cyan);
+  color: var(--color-stellar-white);
+  background-color: rgba(6, 182, 212, 0.1);
+}
+
+.thought-node.completed {
+  border-left-color: var(--color-logic-green);
+  color: var(--color-nebula-gray);
+  opacity: 0.8;
+}
+
+.thought-node.completed::before {
+  content: '✓ ';
+  color: var(--color-logic-green);
+}
+
+.thought-node.pulse {
+  animation: pulse-purple 2s infinite;
+}
+
+@keyframes pulse-purple {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* Nav Styles */
+.nav-item {
+  color: var(--color-nebula-gray);
+  cursor: pointer;
+  padding: var(--spacing-xs) 0;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  color: var(--color-electric-cyan);
+}
+
+.nav-item.active {
+  color: var(--color-electric-cyan);
+}
+
+.stats-container {
+  font-size: 14px;
+  color: var(--color-nebula-gray);
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: var(--color-quantum-blue-light);
+  border-radius: 4px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--color-electric-cyan);
+}

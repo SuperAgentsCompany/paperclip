@@ -1,0 +1,9 @@
+- fact: Technical strategy for custom model development defined.
+  source: SUPAA-19
+  date: 2026-04-18
+- fact: Strategy favors open-source base models (Llama 3, Mistral) and PEFT (LoRA).
+  source: SUPAA-19
+  date: 2026-04-18
+- fact: Roadmap includes 4 phases over 14 weeks.
+  source: SUPAA-19
+  date: 2026-04-18
