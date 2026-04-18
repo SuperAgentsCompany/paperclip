@@ -11,6 +11,7 @@
 - **Milestones:**
   - [x] Gemma4 EN-JP Fine-tuning Complete ([SUPAA-29](/SUPAA/issues/SUPAA-29))
   - [x] Web App Interface Built ([SUPAA-30](/SUPAA/issues/SUPAA-30))
+  - [x] Source Code Published to GitHub ([SUPAA-41](/SUPAA/issues/SUPAA-41))
   - [x] Core Engineering & ML Team Hired ([SUPAA-24](/SUPAA/issues/SUPAA-24))
   - [x] Specialized Scaling Team Approved (ML Researcher, Infra DevOps, Frontend)
 
