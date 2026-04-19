@@ -33,11 +33,12 @@ We adopt a cloud-first approach for compute, utilizing GCP (Vertex AI/GKE) and s
 - Built synthetic data generation pipeline (`generate_data.py`, `generate_more.py`).
 - Produced high-quality EN-JP teaching dataset (`train_data_clean.jsonl`).
 
-### Phase 3: Model Training & Iteration (IN PROGRESS)
+### Phase 3: Model Training & Iteration (COMPLETED)
 - Supervised Fine-Tuning (SFT) of Gemma-4-E4B-it for EN-JP Tutor using Unsloth.
-- Iterative DPO based on QA feedback for coding/orchestration models.
+- Direct Preference Optimization (DPO) of Coding Model to resolve asyncio and security regressions.
+- Final adapters exported to GCS (`gs://super-power-agents-gemma-exports/`).
 
-### Phase 4: Integration & Scale (UPCOMING)
+### Phase 4: Integration & Scale (IN PROGRESS)
 - Integration of specialized adapters into the core Paperclip orchestration layer.
 - Global low-latency serving via Vertex AI or GKE.
 
