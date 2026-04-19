@@ -5,6 +5,11 @@ api_url = os.environ.get("PAPERCLIP_API_URL")
 api_key = os.environ.get("PAPERCLIP_API_KEY")
 company_id = os.environ.get("PAPERCLIP_COMPANY_ID")
 
+# The location where reports should be saved.
+# Defaults to the new documentation repo location as requested by the CEO.
+DEFAULT_REPORTS_DIR = "/home/atw/.paperclip/instances/default/projects/3432dff7-1ef3-4e2a-b46b-d64303b4d4a8/50a9c30d-2a47-40ad-bbe3-d5288435c0a5/documentations/ops/reports"
+reports_dir = os.environ.get("VISIBLE_PROGRESS_REPORTS_DIR", DEFAULT_REPORTS_DIR)
+
 headers = {"Authorization": f"Bearer {api_key}"}
 
 # Get agents
@@ -49,7 +54,26 @@ for agent_name, tasks in agent_work.items():
             report += f"- {status_icon} [{task['identifier']}](/SUPAA/issues/{task['identifier']}) {task['title']} (Status: `{task['status']}`)\n"
     report += "\n"
 
+# 1. Save to local report.md for backward compatibility
 with open("report.md", "w") as f:
     f.write(report)
+
+# 2. Save to timestamped file in the documentation repo
+timestamp = now.strftime("%Y-%m-%d_%H%M")
+filename = f"VISIBLE_PROGRESS_REPORT_{timestamp}.md"
+
+if not os.path.exists(reports_dir):
+    try:
+        os.makedirs(reports_dir, exist_ok=True)
+    except Exception as e:
+        print(f"Warning: Could not create reports directory {reports_dir}: {e}")
+
+report_path = os.path.join(reports_dir, filename)
+try:
+    with open(report_path, "w") as f:
+        f.write(report)
+    print(f"Report saved to {report_path}")
+except Exception as e:
+    print(f"Error saving report to {report_path}: {e}")
 
 print(report)

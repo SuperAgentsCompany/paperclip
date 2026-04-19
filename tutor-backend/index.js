@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3005;
 
 app.use(cors());
 app.use(express.json());
@@ -51,13 +51,25 @@ app.post('/api/chat', async (req, res) => {
     ${context ? `Current focus: ${context}.` : ''}
     
     ### MANDATORY GUIDELINES:
-    1. Language Balance: If the user asks in English, you MUST explain and ask your follow-up question in English.
-    2. Zen Ending: End with exactly one focused question. Use the full-width "？" as the ONLY punctuation at the end. Never use a standard "?".
-    3. Conciseness: Response must be extremely brief (MAX 2-3 short sentences).
-    4. Particle Highlighting: Bold Japanese particles ONLY within Japanese text (e.g., **は**, **が**, **を**).
-    5. Internal Monologue: Wrap your reasoning in <thought> tags.
+    1. Language Balance: If the user asks in English, explain and ask your follow-up question in English.
+    2. Zen Ending: End your response with exactly ONE follow-up question. 
+       - The question MUST end with exactly ONE full-width "？".
+       - NEVER use double question marks.
+    3. Conciseness: Total response length must be MAX 2 short sentences.
+    4. Bolding Rules (STRICT):
+       - ONLY bold these standalone Japanese particles (must be a single, standalone character, NOT part of a word): は, が, を, に, で, へ, と, も, か, や.
+       - Particles must ONLY be bolded when they appear naturally within Japanese text.
+       - NEVER use Japanese particles inside English sentences or as labels for English words.
+       - NEVER bold English words, punctuation, or romaji.
+       - NEVER bold characters inside a word (e.g., NEVER bold **で** in **です**).
+    5. Internal Monologue: Wrap your reasoning in <thought> tags. You MUST explicitly verify that you have followed the Bolding Rules and ensured NO English words are bolded.
     
-    Style: Calm, Muji-inspired, Teineigo (polite Japanese). Avoid all fluff and praise.`
+    Style: Calm, Muji-inspired, Teineigo (polite Japanese). Avoid all fluff, praise, or unnatural language mixing. Keep English and Japanese distinct.
+    
+    ### OUTPUT STRUCTURE:
+    <thought>...</thought>
+    [Explanation/Translation here]
+    [Single follow-up question here？]`
           },
           { role: "user", content: prompt }
         ],
@@ -91,7 +103,40 @@ app.post('/api/chat', async (req, res) => {
     }
 
     // Clean content by removing all thought blocks
-    const cleanContent = fullContent.replace(thoughtRegex, '').trim();
+    let cleanContent = fullContent.replace(thoughtRegex, '').trim();
+
+    // Post-processing to enforce pedagogical constraints and fix model edge-cases
+    
+    // 1. Fix multiple question marks and ensure single full-width at the end
+    cleanContent = cleanContent.replace(/[？?]{2,}/g, '？');
+    if (cleanContent.endsWith('?')) {
+      cleanContent = cleanContent.slice(0, -1) + '？';
+    }
+
+    // 2. Remove bolding around English words that are NOT Romaji particles
+    cleanContent = cleanContent.replace(/\*\*([a-zA-Z]+)\*\*/g, (match, word) => {
+      const allowed = ['wa', 'ga', 'o', 'wo', 'ni', 'de', 'e', 'to', 'mo', 'ka', 'ya'];
+      if (allowed.includes(word.toLowerCase())) {
+        return match;
+      }
+      return word; // Strip bolding
+    });
+
+    // 3. Remove bolding around the copula 'desu' / 'deshita' parts
+    cleanContent = cleanContent.replace(/\*\*で\*\*す\*\*か\*\*/g, 'ですか');
+    cleanContent = cleanContent.replace(/\*\*で\*\*すか/g, 'ですか');
+    cleanContent = cleanContent.replace(/で\*\*す\*\*か\*\*/g, 'ですか');
+    cleanContent = cleanContent.replace(/で\*\*す\*\*か/g, 'ですか');
+    cleanContent = cleanContent.replace(/です\*\*か\*\*/g, 'ですか');
+    cleanContent = cleanContent.replace(/\*\*で\*\*し\*\*た\*\*/g, 'でした');
+    cleanContent = cleanContent.replace(/\*\*で\*\*した/g, 'でした');
+
+    // 4. Remove bolding around partial greetings or common words that models mistakenly bold
+    cleanContent = cleanContent.replace(/\*\*こ\*\*ん\*\*に\*\*ちは/g, 'こんにちは');
+    cleanContent = cleanContent.replace(/こん\*\*に\*\*ちは/g, 'こんにちは');
+    cleanContent = cleanContent.replace(/\*\*こ\*\*ん\*\*に\*\*ち\*\*は\*\*/g, 'こんにちは');
+    cleanContent = cleanContent.replace(/こん\*\*に\*\*ち\*\*は\*\*/g, 'こんにちは');
+
     const combinedReasoning = reasoningArray.join('\n\n---\n\n');
 
     res.json({
