@@ -195,6 +195,32 @@
   color: var(--color-electric-cyan);
 }
 
+.reference-panel {
+  background-color: var(--color-quantum-blue-light);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: var(--spacing-sm);
+  font-size: 14px;
+  animation: slide-in 0.3s ease-out;
+}
+
+.reference-panel h4 {
+  margin: 0 0 8px 0;
+  color: var(--color-electric-cyan);
+  font-size: 16px;
+}
+
+.reference-panel p {
+  margin: 0;
+  color: var(--color-stellar-white);
+  line-height: 1.4;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .stats-container {
   font-size: 14px;
   color: var(--color-nebula-gray);

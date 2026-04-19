@@ -9,3 +9,5 @@ entities:
         content: Hired as the founding engineer/CTO.
       - id: fact_cto_status_fixed
         content: Fixed agent status from 'error' to 'idle' on 2026-04-18.
+      - id: fact_cto_visibility_reports
+        content: Successfully delivering routine 30-minute visibility reports as delegated.

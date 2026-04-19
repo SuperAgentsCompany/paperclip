@@ -5,10 +5,20 @@ Project ID: `super-power-agents`
 
 ## Compute Resources
 1.  **Serving (Cloud Run):**
-    - Service: `gemma4-4b`
-    - Region: `us-central1`
-    - Hardware: 1x NVIDIA RTX Pro 6000 GPU.
-    - Software: vLLM serving stack with OpenAI-compatible API.
+    - Service: `gemma4-4b` (Base Model)
+    - Service: `gemma4-coding` (Specialized Coding Model)
+    - Service: `tutor-backend` (EN-JP Tutor API)
+    - Service: `tutor-frontend` (EN-JP Tutor Web UI)
+    - Service: `supaa-api` (Legacy/General API)
+    - Service: `orchestration-layer` (Task Orchestrator)
+    - Region: `us-central1` (mostly)
+    - Hardware: GPUs (L4/RTX 6000) for model services; Standard for apps.
+
+## CI/CD Pipeline
+- **Tool:** GitHub Actions
+- **Workflow:** `.github/workflows/deploy-tutor.yml`
+- **Trigger:** Pushes to `master` branch.
+- **Process:** Docker build -> Push to GCR -> Deploy to Cloud Run.
 2.  **Fine-tuning (Compute Engine):**
     - VM: `hermes-finetune-gemma`
     - Region: `asia-southeast1-b`

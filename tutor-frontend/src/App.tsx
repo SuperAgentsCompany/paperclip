@@ -42,17 +42,54 @@ function App() {
   const [referenceTopic, setReferenceTopic] = useState<string | null>(null);
   const [sessionSeconds, setSessionSeconds] = useState(0);
   const [learningMode, setLearningMode] = useState(true);
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   
+  const [stats, setStats] = useState({
+    progress: 15,
+    masteryLevel: 'N5 Level',
+    wordsLearned: 0,
+    lessonsCompleted: 0,
+    streakDays: 0
+  });
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/stats');
+      if (response.ok) {
+        const data = await response.json();
+        setStats({
+          progress: data.progress,
+          masteryLevel: `${data.masteryLevel} Level`,
+          wordsLearned: data.wordsLearned,
+          lessonsCompleted: data.lessonsCompleted,
+          streakDays: data.streakDays
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let timer: any;
+    let timer: ReturnType<typeof setInterval> | undefined;
     if (isLoggedIn) {
       timer = setInterval(() => {
         setSessionSeconds(prev => prev + 1);
       }, 1000);
     }
     return () => clearInterval(timer);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (isLoggedIn) {
+        await fetchStats();
+      }
+    };
+    init();
   }, [isLoggedIn]);
 
   const formatTime = (seconds: number) => {
@@ -120,13 +157,21 @@ function App() {
       clearInterval(thoughtInterval);
       setThoughts(pedagogicalThoughts.map(t => ({ ...t, status: 'completed' })));
       
+      // Update stats
+      fetchStats();
+      
       setTimeout(() => {
         setMessages(prev => [...prev, {
           role: 'assistant',
           content: data.content,
           reasoning: data.reasoning
         }]);
-        setThoughts([]);
+        // Persist the reasoning in the sidebar
+        setThoughts([{
+          id: 'reasoning',
+          text: data.reasoning,
+          status: 'active'
+        }]);
         setIsThinking(false);
       }, 500);
 
@@ -150,57 +195,30 @@ function App() {
 
   if (!isLoggedIn) {
     return (
-      <div className="login-container" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        backgroundColor: '#0f172a',
-        color: '#f1f5f9',
-        fontFamily: 'sans-serif'
-      }}>
-        <div style={{
-          padding: '2rem',
-          backgroundColor: '#1e293b',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          width: '100%',
-          maxWidth: '400px'
-        }}>
-          <h1 style={{ color: '#00e5ff', textAlign: 'center', marginBottom: '1.5rem' }}>SUPAA LOGIN</h1>
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div className="login-container">
+        <div className="login-card">
+          <h1>SUPAA LOGIN</h1>
+          <form onSubmit={handleLogin}>
+            <div className="form-group">
               <label>Username</label>
               <input 
                 type="text" 
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
-                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #334155', backgroundColor: '#0f172a', color: 'white' }}
                 placeholder="superagents"
               />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="form-group">
               <label>Password</label>
               <input 
                 type="password" 
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
-                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #334155', backgroundColor: '#0f172a', color: 'white' }}
                 placeholder="••••••••"
               />
             </div>
-            {loginError && <p style={{ color: '#ef4444', fontSize: '0.875rem' }}>{loginError}</p>}
-            <button type="submit" style={{ 
-              marginTop: '1rem',
-              padding: '0.75rem', 
-              backgroundColor: '#00e5ff', 
-              color: '#0a2540', 
-              border: 'none', 
-              borderRadius: '4px', 
-              fontWeight: 'bold',
-              cursor: 'pointer'
-            }}>SIGN IN</button>
+            {loginError && <p className="error-msg">{loginError}</p>}
+            <button type="submit" className="login-btn">SIGN IN</button>
           </form>
         </div>
       </div>
@@ -208,31 +226,51 @@ function App() {
   }
 
   return (
-    <div className="dashboard-container">
+    <div className={`dashboard-container ${isLeftSidebarOpen ? 'left-open' : ''} ${isRightSidebarOpen ? 'right-open' : ''}`}>
       <header className="top-bar">
-        <h1>TUTOR: English-Japanese Mastery</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        <button 
+          className="mobile-toggle-btn left" 
+          onClick={() => {
+            setIsLeftSidebarOpen(!isLeftSidebarOpen);
+            setIsRightSidebarOpen(false);
+          }}
+        >
+          {isLeftSidebarOpen ? '✕' : '☰'}
+        </button>
+        
+        <h1>TUTOR: <span className="title-short">EN-JP</span><span className="title-full">English-Japanese Mastery</span></h1>
+        
+        <div className="top-bar-right">
           <div 
             className={`mode-toggle ${learningMode ? 'active' : ''}`} 
             onClick={() => setLearningMode(!learningMode)}
-            style={{ 
-              cursor: 'pointer', 
-              padding: '4px 12px', 
-              borderRadius: '20px', 
-              fontSize: '12px', 
-              fontWeight: 'bold',
-              backgroundColor: learningMode ? 'var(--color-logic-green)' : 'var(--color-nebula-gray)',
-              color: 'var(--color-quantum-blue-deep)',
-              transition: 'all 0.3s ease'
-            }}
           >
-            {learningMode ? '🎓 LEARNING MODE ON' : '💬 CHAT MODE'}
+            <span className="mode-text-full">{learningMode ? '🎓 LEARNING MODE ON' : '💬 CHAT MODE'}</span>
+            <span className="mode-text-short">{learningMode ? '🎓' : '💬'}</span>
           </div>
           <div className="session-timer">SESSION: {formatTime(sessionSeconds)}</div>
+          
+          <button 
+            className="mobile-toggle-btn right" 
+            onClick={() => {
+              setIsRightSidebarOpen(!isRightSidebarOpen);
+              setIsLeftSidebarOpen(false);
+            }}
+          >
+            {isRightSidebarOpen ? '✕' : '🧠'}
+          </button>
         </div>
       </header>
 
-      <nav className="sidebar-left">
+      <div 
+        className={`mobile-overlay ${(isLeftSidebarOpen || isRightSidebarOpen) ? 'active' : ''}`} 
+        onClick={() => {
+          setIsLeftSidebarOpen(false);
+          setIsRightSidebarOpen(false);
+        }}
+      />
+
+      <nav className={`sidebar-left ${isLeftSidebarOpen ? 'mobile-show' : ''}`}>
         <div className="nav-group">
           <h3>MENU</h3>
           {navItems.map(item => (
@@ -260,7 +298,7 @@ function App() {
         </div>
 
         {referenceTopic && (
-          <div className="reference-panel">
+          <div className="reference-detail">
             <h4>{referenceTopic}</h4>
             <p>{referenceItems.find(i => i.name === referenceTopic)?.info}</p>
           </div>
@@ -268,18 +306,46 @@ function App() {
 
         <div className="stats-container">
           <h3>STATS</h3>
-          <div>Progress: 15%</div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: '15%' }}></div>
+          <div className="stats-grid">
+            <div className="stat-item">
+              <span className="stat-label">Progress:</span>
+              <span className="stat-value">{stats.progress}%</span>
+            </div>
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${stats.progress}%` }}></div>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Mastery:</span>
+              <span className="stat-value">{stats.masteryLevel}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Words:</span>
+              <span className="stat-value">{stats.wordsLearned}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Streak:</span>
+              <span className="stat-value">{stats.streakDays} days</span>
+            </div>
           </div>
-          <div style={{ marginTop: '8px' }}>Mastery: N5 Level</div>
         </div>
       </nav>
 
       <main className="main-content">
         <div className="chat-window">
           {messages.map((msg, idx) => (
-            <div key={idx} className={`bubble ${msg.role}`}>
+            <div 
+              key={idx} 
+              className={`bubble ${msg.role}`}
+              onClick={() => {
+                if (msg.role === 'assistant' && msg.reasoning) {
+                  setThoughts([{
+                    id: 'reasoning',
+                    text: msg.reasoning,
+                    status: 'active'
+                  }]);
+                }
+              }}
+            >
               <div className="content">{msg.content}</div>
               {msg.reasoning && (
                 <>
@@ -321,7 +387,7 @@ function App() {
         </div>
       </main>
 
-      <aside className="sidebar-right">
+      <aside className={`sidebar-right ${isRightSidebarOpen ? 'mobile-show' : ''}`}>
         <h3>PEDAGOGICAL REASONING</h3>
         <div className="thoughts-stream">
           {thoughts.length === 0 && !isThinking && (

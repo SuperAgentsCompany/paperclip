@@ -13,3 +13,5 @@ Goal: Demonstrate SUPAA's capabilities through a specialized English-Japanese la
 - **Web App Interface Development:** DONE (`SUPAA-30`)
 - **UX/UI Design for Learning Interface:** DONE (`SUPAA-31`)
 - **Marketing Repositioning:** DONE (`SUPAA-32`)
+- **DPO Training for Super Coding Model:** DONE (`SUPAA-86`)
+- **Super Local Coding Agent Creation:** DONE (`SUPAA-50`)

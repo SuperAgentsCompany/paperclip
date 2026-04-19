@@ -13,7 +13,7 @@ app.use(express.json());
 const GEMMA_API_ENDPOINT = "https://gemma4-4b-762452591869.us-central1.run.app/v1/chat/completions";
 
 app.post('/api/chat', async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, context } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });
@@ -30,7 +30,14 @@ app.post('/api/chat', async (req, res) => {
         messages: [
           { 
             role: "system", 
-            content: "You are an expert English-Japanese language teacher. For every response, first think about the pedagogical approach, grammar rules, and cultural context. Wrap your internal monologue in <thought> tags, then provide your final response to the student."
+            content: `You are an expert English-Japanese language teacher. Your goal is to help the student learn Japanese effectively.
+${context ? `The current focus of the lesson is: ${context}.` : ''}
+For every response:
+1. First, think about the pedagogical approach, grammar rules, and cultural context. Wrap your internal monologue in <thought> tags.
+2. Provide a concise, helpful response. Focus on teaching one or two key concepts.
+3. Use Markdown for formatting. Bold Japanese particles (e.g., **は**, **が**, **を**).
+4. Always end with a short follow-up question to check understanding or encourage practice.
+Keep your final response (outside <thought> tags) focused and pedagogical. Avoid being overly verbose.`
           },
           { role: "user", content: prompt }
         ],

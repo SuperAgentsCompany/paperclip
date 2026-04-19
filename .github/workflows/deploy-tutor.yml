@@ -1,0 +1,71 @@
+name: Deploy EN-JP Tutor
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'tutor-backend/**'
+      - 'tutor-frontend/**'
+      - '.github/workflows/deploy-tutor.yml'
+
+env:
+  PROJECT_ID: super-power-agents
+  REGION: us-central1
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: Build and Push Backend
+        run: |
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/tutor-backend:${{ github.sha }} -t gcr.io/${{ env.PROJECT_ID }}/tutor-backend:latest ./tutor-backend
+          docker push gcr.io/${{ env.PROJECT_ID }}/tutor-backend:${{ github.sha }}
+          docker push gcr.io/${{ env.PROJECT_ID }}/tutor-backend:latest
+
+      - name: Deploy to Cloud Run
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          service: 'tutor-backend'
+          image: 'gcr.io/${{ env.PROJECT_ID }}/tutor-backend:${{ github.sha }}'
+          region: '${{ env.REGION }}'
+          env_vars: |
+            GEMMA_API_ENDPOINT=https://gemma4-4b-${{ env.PROJECT_ID }}.us-central1.run.app/v1/chat/completions
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: Build and Push Frontend
+        run: |
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/tutor-frontend:${{ github.sha }} -t gcr.io/${{ env.PROJECT_ID }}/tutor-frontend:latest ./tutor-frontend
+          docker push gcr.io/${{ env.PROJECT_ID }}/tutor-frontend:${{ github.sha }}
+          docker push gcr.io/${{ env.PROJECT_ID }}/tutor-frontend:latest
+
+      - name: Deploy to Cloud Run
+        uses: 'google-github-actions/deploy-cloudrun@v2'
+        with:
+          service: 'tutor-frontend'
+          image: 'gcr.io/${{ env.PROJECT_ID }}/tutor-frontend:${{ github.sha }}'
+          region: '${{ env.REGION }}'

@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+    environment:
+      - DATABASE_URL=postgresql://supaa_admin:password@db/supaa
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build: ./api
+    volumes:
+      - ./api:/app
+    environment:
+      - DATABASE_URL=postgresql://supaa_admin:password@db/supaa
+      - REDIS_HOST=redis
+    command: celery -A app.worker.celery_app worker --loglevel=info
+    depends_on:
+      - db
+      - redis
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=supaa_admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=supaa
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"

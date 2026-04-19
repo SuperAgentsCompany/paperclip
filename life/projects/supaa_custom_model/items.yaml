@@ -1,9 +1,15 @@
 - fact: Technical strategy for custom model development defined.
   source: SUPAA-19
   date: 2026-04-18
-- fact: Strategy favors open-source base models (Llama 3, Mistral) and PEFT (LoRA).
+- fact: Strategy favors open-source base models (Gemma4 selected) and PEFT (LoRA).
   source: SUPAA-19
   date: 2026-04-18
 - fact: Roadmap includes 4 phases over 14 weeks.
   source: SUPAA-19
+  date: 2026-04-18
+- fact: EN-JP Tutor model fine-tuning successfully completed.
+  source: SUPAA-29
+  date: 2026-04-18
+- fact: Super Coding Agent model fine-tuning successfully completed and verified.
+  source: SUPAA-67
   date: 2026-04-18

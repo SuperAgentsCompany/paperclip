@@ -24,8 +24,24 @@ function App() {
   const [isThinking, setIsThinking] = useState(false);
   const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [expandedReasoning, setExpandedReasoning] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState('Intro');
+  const [referenceTopic, setReferenceTopic] = useState<string | null>(null);
+  const [sessionSeconds, setSessionSeconds] = useState(0);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSessionSeconds(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -64,13 +80,13 @@ function App() {
       } else {
         clearInterval(thoughtInterval);
       }
-    }, 1500);
+    }, 1000);
 
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: inputValue }),
+        body: JSON.stringify({ prompt: inputValue, context: activeTab }),
       });
 
       if (!response.ok) throw new Error('API Error');
@@ -78,12 +94,18 @@ function App() {
       const data = await response.json();
       
       clearInterval(thoughtInterval);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: data.content,
-        reasoning: data.reasoning
-      }]);
-      setThoughts([]);
+      setThoughts(pedagogicalThoughts.map(t => ({ ...t, status: 'completed' })));
+      
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.content,
+          reasoning: data.reasoning
+        }]);
+        setThoughts([]);
+        setIsThinking(false);
+      }, 500);
+
     } catch (error) {
       clearInterval(thoughtInterval);
       console.error('Error:', error);
@@ -91,32 +113,57 @@ function App() {
         role: 'assistant',
         content: 'Sorry, I encountered an error. Please try again.',
       }]);
-    } finally {
       setIsThinking(false);
     }
   };
+
+  const navItems = ['Intro', 'Grammar', 'Vocab'];
+  const referenceItems = [
+    { name: 'Neko (猫)', info: 'Cat. Often used with the particle が or は.' },
+    { name: 'Suki (好き)', info: 'To like. Takes the particle が for the object of liking.' },
+    { name: 'Desu (です)', info: 'The polite copula (to be). Used at the end of sentences.' }
+  ];
 
   return (
     <div className="dashboard-container">
       <header className="top-bar">
         <h1>TUTOR: English-Japanese Mastery</h1>
-        <div className="session-timer">SESSION: 00:15</div>
+        <div className="session-timer">SESSION: {formatTime(sessionSeconds)}</div>
       </header>
 
       <nav className="sidebar-left">
         <div className="nav-group">
           <h3>MENU</h3>
-          <div className="nav-item active">Intro</div>
-          <div className="nav-item">Grammar</div>
-          <div className="nav-item">Vocab</div>
+          {navItems.map(item => (
+            <div 
+              key={item} 
+              className={`nav-item ${activeTab === item ? 'active' : ''}`}
+              onClick={() => setActiveTab(item)}
+            >
+              {item}
+            </div>
+          ))}
         </div>
         
         <div className="nav-group">
           <h3>REFERENCE</h3>
-          <div className="nav-item">Neko (猫)</div>
-          <div className="nav-item">Suki (好き)</div>
-          <div className="nav-item">Desu (です)</div>
+          {referenceItems.map(item => (
+            <div 
+              key={item.name} 
+              className={`nav-item ${referenceTopic === item.name ? 'active' : ''}`}
+              onClick={() => setReferenceTopic(referenceTopic === item.name ? null : item.name)}
+            >
+              {item.name}
+            </div>
+          ))}
         </div>
+
+        {referenceTopic && (
+          <div className="reference-panel">
+            <h4>{referenceTopic}</h4>
+            <p>{referenceItems.find(i => i.name === referenceTopic)?.info}</p>
+          </div>
+        )}
 
         <div className="stats-container">
           <h3>STATS</h3>
@@ -152,7 +199,7 @@ function App() {
           ))}
           {isThinking && (
             <div className="bubble tutor thinking">
-              <span className="pulse">...</span>
+              <span className="pulse">Thinking...</span>
             </div>
           )}
           <div ref={chatEndRef} />
@@ -162,34 +209,34 @@ function App() {
           <input 
             type="text" 
             className="chat-input" 
-            placeholder="Type here..." 
+            placeholder={`Ask about ${activeTab.toLowerCase()}...`}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
           />
-          <button className="send-button" onClick={handleSend}>SEND</button>
+          <button className="send-button" onClick={handleSend} disabled={isThinking}>
+            {isThinking ? '...' : 'SEND'}
+          </button>
         </div>
       </main>
 
       <aside className="sidebar-right">
-        <h3>REASONING</h3>
+        <h3>PEDAGOGICAL REASONING</h3>
         <div className="thoughts-stream">
           {thoughts.length === 0 && !isThinking && (
-            <div className="thought-node">Awaiting input...</div>
+            <div className="thought-node">Awaiting student input...</div>
           )}
           {thoughts.map(thought => (
             <div key={thought.id} className={`thought-node ${thought.status}`}>
               {thought.text}
             </div>
           ))}
-          {isThinking && thoughts.length > 0 && (
-             <div className="thought-node active pulse">Thinking...</div>
-          )}
         </div>
       </aside>
 
       <footer className="bottom-bar">
         <div className="status-badge">MODEL: GEMMA4-4B</div>
+        <div className="status-badge" style={{ marginLeft: 'auto' }}>CONTEXT: {activeTab.toUpperCase()}</div>
       </footer>
     </div>
   );

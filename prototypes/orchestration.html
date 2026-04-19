@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPAA - Orchestration View</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --quantum-blue: #0A2540;
+            --electric-cyan: #00E5FF;
+            --deep-slate: #0F172A;
+            --slate-800: #1E293B;
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --text-main: #F1F5F9;
+            --text-muted: #94A3B8;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--deep-slate);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        aside {
+            width: 240px;
+            background-color: var(--quantum-blue);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--electric-cyan);
+            margin-bottom: 48px;
+            letter-spacing: -0.05em;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav li {
+            margin-bottom: 16px;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        nav a.active {
+            color: var(--electric-cyan);
+            background: rgba(0, 229, 255, 0.1);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            padding: 24px 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .breadcrumb {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .orchestration-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Graph Canvas Placeholder */
+        .graph-area {
+            flex: 2;
+            background-image: radial-gradient(var(--border) 1px, transparent 1px);
+            background-size: 30px 30px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .node {
+            background: var(--slate-800);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            width: 180px;
+            position: absolute;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .node-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .connector {
+            position: absolute;
+            height: 2px;
+            background: var(--electric-cyan);
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        /* Live Logs Panel */
+        .logs-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .log-stream {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .log-entry {
+            margin-bottom: 12px;
+            border-left: 2px solid transparent;
+            padding-left: 12px;
+        }
+
+        .log-entry.info { border-color: var(--electric-cyan); }
+        .log-entry.success { border-color: var(--success); }
+
+        .log-timestamp { color: #475569; margin-right: 8px; }
+        .log-agent { color: var(--electric-cyan); font-weight: 600; }
+
+        /* Nodes Placement */
+        #node-1 { top: 150px; left: 50px; }
+        #node-2 { top: 50px; left: 300px; }
+        #node-3 { top: 250px; left: 300px; }
+        #node-4 { top: 150px; left: 550px; }
+
+        .edge-1-2 { width: 100px; top: 125px; left: 215px; transform: rotate(-35deg); }
+        .edge-1-3 { width: 100px; top: 225px; left: 215px; transform: rotate(35deg); }
+        .edge-2-4 { width: 100px; top: 125px; left: 465px; transform: rotate(35deg); }
+        .edge-3-4 { width: 100px; top: 225px; left: 465px; transform: rotate(-35deg); }
+
+    </style>
+</head>
+<body>
+    <aside>
+        <div class="logo">SUPAA</div>
+        <nav>
+            <ul>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="#">Agents</a></li>
+                <li><a href="#" class="active">Orchestrations</a></li>
+                <li><a href="#">Knowledge</a></li>
+                <li><a href="#">Settings</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main>
+        <header>
+            <div>
+                <div class="breadcrumb">Orchestrations / ORCH-8291</div>
+                <h1 style="font-size: 24px;">Market Intelligence Sweep</h1>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button style="background: transparent; border: 1px solid var(--border); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer;">Pause</button>
+                <button style="background: var(--electric-cyan); border: none; color: var(--quantum-blue); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;">Stop</button>
+            </div>
+        </header>
+
+        <div class="orchestration-container">
+            <div class="graph-area">
+                <div class="node" id="node-1">
+                    <div class="node-header">
+                        <span class="node-name">Dispatcher</span>
+                        <div class="status-dot" style="background: var(--success);"></div>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Decomposing prompt...</div>
+                </div>
+
+                <div class="node" id="node-2">
+                    <div class="node-header">
+                        <span class="node-name">Web Scraper</span>
+                        <div class="status-dot" style="background: var(--electric-cyan); box-shadow: 0 0 8px var(--electric-cyan);"></div>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Fetching 12 sources...</div>
+                </div>
+
+                <div class="node" id="node-3">
+                    <div class="node-header">
+                        <span class="node-name">Data Cleaner</span>
+                        <div class="status-dot" style="background: var(--warning);"></div>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Awaiting scraper...</div>
+                </div>
+
+                <div class="node" id="node-4">
+                    <div class="node-header">
+                        <span class="node-name">Synthesizer</span>
+                        <div class="status-dot" style="background: #475569;"></div>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Idle</div>
+                </div>
+
+                <div class="connector edge-1-2"></div>
+                <div class="connector edge-1-3"></div>
+                <div class="connector edge-2-4"></div>
+                <div class="connector edge-3-4"></div>
+            </div>
+
+            <div class="logs-panel">
+                <div class="panel-header">
+                    <span>Live Event Stream</span>
+                    <span style="color: var(--electric-cyan); font-size: 12px;">● Live</span>
+                </div>
+                <div class="log-stream">
+                    <div class="log-entry info">
+                        <span class="log-timestamp">10:42:01</span>
+                        <span class="log-agent">[Dispatcher]</span>
+                        <span>Plan generated. Spawning 3 child agents.</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">10:42:05</span>
+                        <span class="log-agent">[Web Scraper]</span>
+                        <span>Querying Google Search API for "AI market trends 2026"...</span>
+                    </div>
+                    <div class="log-entry info">
+                        <span class="log-timestamp">10:42:08</span>
+                        <span class="log-agent">[Web Scraper]</span>
+                        <span>Found 14 relevant URLs. Starting extraction.</span>
+                    </div>
+                    <div class="log-entry">
+                        <span class="log-timestamp">10:42:15</span>
+                        <span class="log-agent">[Data Cleaner]</span>
+                        <span>Buffer initialized. Ready for incoming stream.</span>
+                    </div>
+                    <div class="log-entry success">
+                        <span class="log-timestamp">10:42:22</span>
+                        <span class="log-agent">[Web Scraper]</span>
+                        <span>Source 1/14 processed (techcrunch.com).</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

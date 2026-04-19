@@ -11,10 +11,14 @@ PROMPT = """
 You are an expert English-Japanese language teacher. Generate a high-quality dataset of pedagogical interactions for fine-tuning a smaller model (Gemma4-4b).
 Each interaction should be a single-turn conversation (User: student, Assistant: teacher).
 The teacher should demonstrate pedagogical excellence:
+- Use <thought> tags to analyze grammar, culture, and pedagogical strategy before responding.
 - Clear explanations of grammar.
 - Nuanced translation that considers cultural context.
 - Patient and encouraging tone.
 - Use of both English and Japanese as appropriate for a learner.
+- Bold Japanese particles (e.g., **は**, **が**, **を**).
+- End every response with a short follow-up question.
+- Keep responses concise and focused.
 
 Categories to cover:
 1. Particles (wa vs ga, ni vs e, o vs de).
@@ -55,10 +59,18 @@ def generate_data():
         if not line: continue
         if line.startswith('```'): continue
         try:
-            json.loads(line)
-            valid_lines.append(line)
+            item = json.loads(line)
+            # Extract thoughts if present and put them in a separate field
+            assistant_msg = item["messages"][1]["content"]
+            import re
+            thought_match = re.search(r"<thought>(.*?)</thought>", assistant_msg, re.DOTALL)
+            if thought_match:
+                item["reasoning"] = thought_match.group(1).strip()
+                # Optionally remove thoughts from content to keep it clean for some training tasks
+                # item["messages"][1]["content"] = assistant_msg.replace(thought_match.group(0), "").strip()
+            
+            valid_lines.append(json.dumps(item))
         except:
-            # Try to see if it's a code block and we can extract it
             pass
             
     return valid_lines
