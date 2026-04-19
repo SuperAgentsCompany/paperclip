@@ -34,6 +34,9 @@ app.post('/api/chat', async (req, res) => {
   }
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
     const response = await fetch(GEMMA_API_ENDPOINT, {
       method: 'POST',
       headers: {
@@ -45,18 +48,24 @@ app.post('/api/chat', async (req, res) => {
           { 
             role: "system", 
             content: `You are an expert English-Japanese language teacher. Your goal is to help the student learn Japanese effectively.
-${context ? `The current focus of the lesson is: ${context}.` : ''}
-For every response:
-1. First, think about the pedagogical approach, grammar rules, and cultural context. Wrap your internal monologue in <thought> tags.
-2. Provide a concise, helpful response. Focus on teaching one or two key concepts.
-3. Use Markdown for formatting. Bold Japanese particles (e.g., **は**, **が**, **を**).
-4. Always end with a short follow-up question to check understanding or encourage practice.
-Keep your final response (outside <thought> tags) focused and pedagogical. Avoid being overly verbose.`
+    ${context ? `The current focus of the lesson is: ${context}.` : ''}
+    For every response:
+    1. First, think about the pedagogical approach, grammar rules, and cultural context. Wrap your internal monologue in <thought> tags.
+    2. Provide an extremely concise, helpful response (MAXIMUM 3 short sentences). Focus on teaching ONE key concept.
+    3. Do NOT provide exhaustive tables, pronunciation guides, or lists unless explicitly asked.
+    4. Use Markdown for formatting. Bold Japanese particles (e.g., **は**, **が**, **を**).
+    5. Always end with a short follow-up question to check understanding.
+    Keep your final response strictly focused and pedagogical. Avoid all fluff.`
           },
           { role: "user", content: prompt }
         ],
+        max_tokens: 1024,
+        temperature: 0.7,
       }),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -67,21 +76,25 @@ Keep your final response (outside <thought> tags) focused and pedagogical. Avoid
     const data = await response.json();
     const message = data.choices[0].message;
     
-    let content = message.content || "";
-    let reasoning = message.reasoning || "";
+    let fullContent = message.content || "";
+    let reasoningArray = [];
 
-    // Extract thoughts from content if present
-    if (content.includes('<thought>')) {
-      const thoughtMatch = content.match(/<thought>([\s\S]*?)<\/thought>/);
-      if (thoughtMatch) {
-        reasoning = thoughtMatch[1].trim();
-        content = content.replace(/<thought>[\s\S]*?<\/thought>/, '').trim();
+    // Extract all thought blocks (handle unclosed tags at the end of content)
+    const thoughtRegex = /<thought>([\s\S]*?)(?:<\/thought>|$)/g;
+    let match;
+    while ((match = thoughtRegex.exec(fullContent)) !== null) {
+      if (match[1].trim()) {
+        reasoningArray.push(match[1].trim());
       }
     }
 
+    // Clean content by removing all thought blocks
+    const cleanContent = fullContent.replace(thoughtRegex, '').trim();
+    const combinedReasoning = reasoningArray.join('\n\n---\n\n');
+
     res.json({
-      content: content,
-      reasoning: reasoning
+      content: cleanContent,
+      reasoning: combinedReasoning || message.reasoning || ""
     });
 
   } catch (error) {
