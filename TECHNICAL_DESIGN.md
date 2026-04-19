@@ -4,58 +4,34 @@ This document provides the technical specifications for the SUPAA platform, cove
 
 ## 1. API Design
 
-The API is built using FastAPI and follows RESTful principles for data management, with WebSockets for real-time orchestration updates.
+SUPAA utilizes a multi-backend architecture to support both core platform services and specialized product demonstrations.
 
-### 1.1 REST Endpoints
+### 1.1 Core Platform API (FastAPI)
+The central API for multi-agent management, project lifecycle, and task orchestration.
+- **Stack:** Python, FastAPI.
+- **Location:** `api/`
+- **Responsibilities:**
+    - Agent lifecycle management.
+    - Project and workspace provisioning.
+    - Centralized telemetry and logging.
 
-#### Projects
-- `GET /projects`: List all projects.
-- `POST /projects`: Create a new project.
-- `GET /projects/{id}`: Get project details.
-- `PATCH /projects/{id}`: Update project settings.
-
-#### Agents
-- `GET /agents`: List available agent templates.
-- `GET /projects/{id}/agents`: List agents active in a project.
-- `POST /projects/{id}/agents`: Deploy an agent instance to a project.
-
-#### Tasks
-- `GET /projects/{id}/tasks`: List all tasks in a project.
-- `POST /projects/{id}/tasks`: Create a new task (triggers orchestration).
-- `GET /tasks/{id}`: Get task status and artifacts.
-- `GET /tasks/{id}/logs`: Get execution logs for a task.
-
-#### Knowledge Base
-- `POST /projects/{id}/knowledge`: Upload a document to the knowledge base (triggers embedding).
-- `GET /projects/{id}/knowledge`: Search and list knowledge artifacts.
-
-### 1.2 WebSocket Protocol
-
-**Endpoint:** `WS /ws/orchestration/{task_id}`
-
-**Client -> Server Events:**
-- `cancel_task`: Request to stop the current orchestration.
-
-**Server -> Client Events:**
-- `agent_thought`: Streaming text of agent reasoning.
-- `agent_action`: Notification of an agent calling a tool.
-- `task_update`: Status change (e.g., `PENDING` -> `RUNNING`).
-- `artifact_generated`: Notification of a new file or code snippet created.
-- `handoff`: Notification of task passing from one agent to another.
+### 1.2 EN-JP Tutor API (Express/Node.js)
+A specialized high-performance backend optimized for the English-Japanese language teaching MVP.
+- **Stack:** Node.js, Express.
+- **Location:** `tutor-backend/`
+- **Responsibilities:**
+    - Real-time streaming of model responses.
+    - Pedagogical reasoning extraction.
+    - Language-learning session management.
 
 ## 2. Database Schema (PostgreSQL + pgvector)
 
 ### 2.1 Core Tables
 
-#### `users`
+#### `users` / `waitlist`
 - `id`: UUID (PK)
 - `email`: String (Unique)
-- `hashed_password`: String
-- `created_at`: Timestamp
-
-#### `waitlist`
-- `id`: UUID (PK)
-- `email`: String (Unique)
+- `hashed_password`: String (for users)
 - `created_at`: Timestamp
 
 #### `projects`
@@ -63,24 +39,21 @@ The API is built using FastAPI and follows RESTful principles for data managemen
 - `name`: String
 - `description`: Text
 - `owner_id`: UUID (FK -> users.id)
-- `created_at`: Timestamp
 
 #### `agents`
 - `id`: UUID (PK)
 - `project_id`: UUID (FK -> projects.id)
 - `name`: String
-- `role`: String (e.g., 'researcher', 'coder')
+- `role`: String
 - `system_prompt`: Text
-- `model`: String (e.g., 'gemini-1.5-pro')
+- `model`: String (e.g., 'gemma4-4b-it')
 
 #### `tasks`
 - `id`: UUID (PK)
 - `project_id`: UUID (FK -> projects.id)
 - `title`: String
-- `description`: Text
 - `status`: Enum ('PENDING', 'RUNNING', 'COMPLETED', 'FAILED')
 - `result`: JSONB (Final output summary)
-- `created_at`: Timestamp
 
 #### `knowledge_base`
 - `id`: UUID (PK)
@@ -88,11 +61,10 @@ The API is built using FastAPI and follows RESTful principles for data managemen
 - `filename`: String
 - `content`: Text
 - `embedding`: Vector(768) (pgvector)
-- `metadata`: JSONB
 
 ## 3. Orchestration Logic
 
-The orchestration layer manages the lifecycle of a task and coordinates between multiple agents.
+The orchestration layer manages the lifecycle of a task and coordinates between multiple agents via **Paperclip**.
 
 ### 3.1 Task State Machine
 1.  **PENDING:** Task created, waiting for orchestrator.
@@ -103,13 +75,10 @@ The orchestration layer manages the lifecycle of a task and coordinates between 
 
 ### 3.2 Agent Handoff Mechanism
 - The **Orchestrator** acts as a central router.
-- When an agent finishes its work, it returns a `HandoffRequest` containing:
-    - `next_agent_role`: The suggested next agent.
-    - `payload`: Data to be passed.
-    - `context_summary`: Condensed history of actions taken.
-- The Orchestrator validates the request and spins up the next agent instance with the provided context.
+- When an agent finishes its work, it returns a `HandoffRequest` containing `next_agent_role`, `payload`, and `context_summary`.
+- The Orchestrator validates the request and spins up the next agent instance.
 
 ### 3.3 Context Management
-- **Conversation History:** Stored in Redis during active execution for fast retrieval.
-- **RAG (Retrieval-Augmented Generation):** Before each agent turn, the Orchestrator queries the `knowledge_base` using pgvector to inject relevant project context into the agent's prompt.
-- **Artifacts:** Code, docs, and images are stored in Cloud Storage, with references in PostgreSQL.
+- **Conversation History:** Stored in Redis during active execution.
+- **RAG (Retrieval-Augmented Generation):** Before each agent turn, relevant project context is injected from the `knowledge_base` using pgvector similarity search.
+- **Artifacts:** Code, docs, and images are stored in Cloud Storage.

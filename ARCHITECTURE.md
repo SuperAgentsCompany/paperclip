@@ -20,27 +20,24 @@ The SUPAA MVP uses a decoupled architecture to ensure scalability and high perfo
     - Session management for persistent tutor interactions.
     - Integration with the Gemma4 API for model inference.
 - **Stack:** Node.js, Express.
+- **Location:** `tutor-backend/`
 
 ### 2. Frontend (React)
 - **Role:** Interactive user interface for language learning.
 - **Key Features:**
     - Dynamic chat interface with pedagogical reasoning sidebars.
     - Interactive grammar highlighting and real-time feedback toasts.
-    - Adherence to the **Nova Design System** for foundations (colors, typography).
 - **Stack:** React (TypeScript), Vite, Vanilla CSS.
+- **Location:** `tutor-frontend/`
 
-### 3. Communication
-- **Protocol:** HTTP Streaming / WebSockets for low-latency updates of the reasoning map and chat bubbles.
-
-
-## Data Flow
-1.  **User Input:** Captured via the Web MVP.
-2.  **Inference:** Handled by a fine-tuned Gemma4 model served via vLLM on GCP.
-3.  **Reasoning Extraction:** The model's internal monologue is captured via `<thought>` tags or the `reasoning` field and streamed to the UI.
-4.  **Tool Execution:** When needed, the model calls tools (e.g., dictionary lookups, grammar validation) which are executed by the Paperclip adapter.
+## Data & Model Strategy
+For detailed information on how we collect data and train our specialized models, see:
+- [TECHNICAL_DATA_STRATEGY.md](./TECHNICAL_DATA_STRATEGY.md)
+- [STRATEGY_CUSTOM_MODEL.md](./STRATEGY_CUSTOM_MODEL.md)
+- [ML_SCRIPTS.md](./ML_SCRIPTS.md) (Script references and usage)
 
 ## Model Specialization Pipeline
-1.  **Data Generation:** High-quality synthetic pedagogical data generated via Gemini 2.5 Pro.
-2.  **Fine-tuning:** PEFT/LoRA training using Unsloth on GCP L4 GPUs.
-3.  **Evaluation:** Benchmarking against the base model for domain-specific accuracy and nuance.
-4.  **Deployment:** Serving the fine-tuned adapter via vLLM.
+1.  **Data Generation:** High-quality synthetic pedagogical data generated via Gemini 2.0 Flash (`generate_data.py`).
+2.  **Fine-tuning:** PEFT/LoRA training using Unsloth on GCP L4 GPUs (`finetune_gemma.py`).
+3.  **Evaluation:** Benchmarking against the base model for domain-specific accuracy and nuance (`gemma4_evaluation.py`).
+4.  **Deployment:** Serving the fine-tuned adapter via vLLM on Cloud Run.

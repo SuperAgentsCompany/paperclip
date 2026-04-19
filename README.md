@@ -1,21 +1,27 @@
 # SUPAA - Multi-Agent Orchestration Platform
 
+> [!IMPORTANT]
+> **SYSTEM STATUS: MAINTENANCE / GTM PAUSED**
+> We are currently experiencing regressions in our fine-tuned Gemma4 models (SUPAA-93). All public-facing GTM activities and active launches are paused while we roll back to the baseline model and restore stability.
+
 SUPAA is the intelligent orchestration layer for multi-agent AI systems, built for scalability and performance on Google Cloud Platform.
+
+## Technical Documentation
+Detailed information on our architecture, data strategy, and specialized models can be found here:
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - System overview and component breakdown.
+- [TECHNICAL_DESIGN.md](./TECHNICAL_DESIGN.md) - Detailed API, Database, and Orchestration specs.
+- [TECHNICAL_DATA_STRATEGY.md](./TECHNICAL_DATA_STRATEGY.md) - Our "Teacher-Student" distillation and fine-tuning approach.
+- [STRATEGY_CUSTOM_MODEL.md](./STRATEGY_CUSTOM_MODEL.md) - Roadmap for proprietary model development.
+- [ML_SCRIPTS.md](./ML_SCRIPTS.md) - Guide to our synthetic data generation and training tools.
 
 ## Repository Structure
 
-- `api/`: FastAPI backend service.
-  - `app/`: Application logic.
-  - `Dockerfile`: Container definition for backend.
-  - `requirements.txt`: Python dependencies.
-- `frontend/`: Next.js (React) frontend.
-  - `src/app/`: Next.js App Router pages and layouts.
-  - `Dockerfile`: Container definition for frontend.
-  - `package.json`: Node.js dependencies.
+- `api/`: FastAPI backend service (Core Platform).
+- `tutor-backend/`: Node.js backend for the EN-JP Tutor MVP.
+- `tutor-frontend/`: Vite/React frontend for the EN-JP Tutor MVP.
+- `frontend/`: Next.js (React) frontend (Core Platform).
 - `infra/terraform/`: GCP Infrastructure as Code.
 - `docker-compose.yml`: Local development setup.
-- `tutor-backend/`: Node.js backend for the EN-JP Tutor.
-- `tutor-frontend/`: Vite/React frontend for the EN-JP Tutor.
 
 ## Getting Started
 
@@ -37,29 +43,6 @@ The EN-JP Tutor prototype is live at the following URLs:
 - **Frontend:** https://tutor-frontend-ybdfmwxycq-uc.a.run.app
 - **Credentials:** `superagents` / `superagents`
 - **Backend API:** https://tutor-backend-ybdfmwxycq-uc.a.run.app
-
-### Infrastructure Deployment (Terraform)
-
-1. Initialize Terraform:
-   ```bash
-   cd infra/terraform
-   terraform init
-   ```
-
-2. Plan the deployment:
-   ```bash
-   terraform plan -var="project_id=YOUR_PROJECT_ID" -var="db_password=YOUR_DB_PASSWORD"
-   ```
-
-3. Apply the changes:
-   ```bash
-   terraform apply -var="project_id=YOUR_PROJECT_ID" -var="db_password=YOUR_DB_PASSWORD"
-   ```
-
-## CI/CD Pipeline
-
-Automated deployments are configured via GitHub Actions in `.github/workflows/deploy-tutor.yml`.
-Pushes to the `master` branch trigger builds and deployments for both the Tutor frontend and backend to Google Cloud Run.
 
 ## Tech Stack
 
