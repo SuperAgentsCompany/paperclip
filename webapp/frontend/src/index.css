@@ -1,14 +1,24 @@
 :root {
-  /* Nova Design System Color Palette */
-  --color-quantum-blue-deep: #0a2540;
-  --color-quantum-blue-light: #1a3b5d;
-  --color-electric-cyan: #06b6d4;
-  --color-stellar-white: #f8fafc;
-  --color-nebula-gray: #94a3b8;
-  --color-logic-green: #10b981;
-  --color-alert-amber: #f59e0b;
-  --color-signal-red: #ef4444;
-  --color-thought-purple: #8b5cf6;
+    /* Zen Design System Color Palette (OKLCH) */
+  --zen-linen-wash: oklch(0.98 0.01 80);
+  --zen-washi-paper: oklch(0.99 0.005 80);
+  --zen-hinoki: oklch(0.92 0.03 85);
+  --zen-sage-leaf: oklch(0.55 0.08 150);
+  --zen-ink-stone: oklch(0.25 0.02 260);
+  --zen-mist: oklch(0.65 0.01 260);
+  --zen-sandstone: oklch(0.85 0.04 80);
+  --zen-earth-red: oklch(0.60 0.12 25);
+
+  /* Legacy Mappings to Zen */
+  --color-quantum-blue-deep: var(--zen-linen-wash);
+  --color-quantum-blue-light: var(--zen-washi-paper);
+  --color-electric-cyan: var(--zen-sage-leaf);
+  --color-stellar-white: var(--zen-ink-stone);
+  --color-nebula-gray: var(--zen-mist);
+  --color-logic-green: var(--zen-sage-leaf);
+  --color-alert-amber: var(--zen-sandstone);
+  --color-signal-red: var(--zen-earth-red);
+  --color-thought-purple: var(--zen-hinoki);
 
   /* Typography */
   --font-primary: 'Inter', system-ui, -apple-system, sans-serif;
@@ -25,7 +35,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: dark;
+  color-scheme: light;
   color: var(--color-stellar-white);
   background-color: var(--color-quantum-blue-deep);
 
