@@ -9,6 +9,8 @@ SUPAA is the intelligent orchestration layer for multi-agent AI systems, built f
 ## Technical Documentation
 Detailed information on our architecture, data strategy, and specialized models can be found here:
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - System overview and component breakdown.
+- [FRONTEND_ARCHITECTURE.md](../67871a01-7cf8-4466-8138-ce84291ed912/_default/FRONTEND_ARCHITECTURE.md) - Frontend architecture, apps, and styling guidelines.
+- [TUTOR_FRONTEND_TECHNICAL_DOC.md](../67871a01-7cf8-4466-8138-ce84291ed912/_default/TUTOR_FRONTEND_TECHNICAL_DOC.md) - EN-JP Tutor frontend technical documentation.
 - [TECHNICAL_DESIGN.md](./TECHNICAL_DESIGN.md) - Detailed API, Database, and Orchestration specs.
 - [TECHNICAL_DATA_STRATEGY.md](./TECHNICAL_DATA_STRATEGY.md) - Our "Teacher-Student" distillation and fine-tuning approach.
 - [STRATEGY_CUSTOM_MODEL.md](./STRATEGY_CUSTOM_MODEL.md) - Roadmap for proprietary model development.
