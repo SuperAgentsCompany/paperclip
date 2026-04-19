@@ -1,16 +1,17 @@
+> [!TIP]
+> **SYSTEM STATUS: ACTIVE**
+> All specialized Gemma4 models (EN-JP and Coding) have been optimized with DPO alignment. Production services are healthy.
+
 # SUPAA - Multi-Agent Orchestration Platform
 
-> [!IMPORTANT]
-> **SYSTEM STATUS: MAINTENANCE / GTM PAUSED**
-> We are currently experiencing regressions in our fine-tuned Gemma4 models (SUPAA-93). All public-facing GTM activities and active launches are paused while we roll back to the baseline model and restore stability.
 
 SUPAA is the intelligent orchestration layer for multi-agent AI systems, built for scalability and performance on Google Cloud Platform.
 
 ## Technical Documentation
 Detailed information on our architecture, data strategy, and specialized models can be found here:
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - System overview and component breakdown.
-- [FRONTEND_ARCHITECTURE.md](../67871a01-7cf8-4466-8138-ce84291ed912/_default/FRONTEND_ARCHITECTURE.md) - Frontend architecture, apps, and styling guidelines.
-- [TUTOR_FRONTEND_TECHNICAL_DOC.md](../67871a01-7cf8-4466-8138-ce84291ed912/_default/TUTOR_FRONTEND_TECHNICAL_DOC.md) - EN-JP Tutor frontend technical documentation.
+- [FRONTEND_ARCHITECTURE.md](https://github.com/SuperAgentsCompany/documentations/blob/main/engineering/architecture.md) - Frontend architecture, apps, and styling guidelines.
+- [TUTOR_FRONTEND_TECHNICAL_DOC.md](https://github.com/SuperAgentsCompany/documentations/blob/main/engineering/tutor_frontend.md) - EN-JP Tutor frontend technical documentation.
 - [TECHNICAL_DESIGN.md](./TECHNICAL_DESIGN.md) - Detailed API, Database, and Orchestration specs.
 - [TECHNICAL_DATA_STRATEGY.md](./TECHNICAL_DATA_STRATEGY.md) - Our "Teacher-Student" distillation and fine-tuning approach.
 - [STRATEGY_CUSTOM_MODEL.md](./STRATEGY_CUSTOM_MODEL.md) - Roadmap for proprietary model development.

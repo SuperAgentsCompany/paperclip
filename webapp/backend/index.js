@@ -54,12 +54,11 @@ ${context ? `Current focus: ${context}.` : ''}
    - NEVER use double question marks.
 3. Conciseness: Total response length must be MAX 2 short sentences.
 4. Bolding Rules (STRICT):
-   - ONLY bold these standalone Japanese particles (must be a single, standalone character, NOT part of a word): は, が, を, に, で, へ, と, も, か, や.
-   - Particles must ONLY be bolded when they appear naturally within Japanese text.
-   - NEVER use Japanese particles inside English sentences or as labels for English words.
-   - NEVER bold English words, punctuation, or romaji.
-   - NEVER bold characters inside a word (e.g., NEVER bold **で** in **です**).
-5. Internal Monologue: Wrap your reasoning in <thought> tags. You MUST explicitly verify that you have followed the Bolding Rules and ensured NO English words are bolded.
+   - ONLY bold these standalone Japanese particles: は, が, を, に, で, へ, と, も, か, や.
+   - NEVER bold characters within verb conjugations or polite endings (e.g., NEVER bold **で** or **か** within **ですか**, **でしょう**, **ます**, etc.).
+   - Example of correct bolding: ラーメン**が**好きです。
+   - NEVER bold English, romaji, or punctuation.
+5. Internal Monologue: Wrap your reasoning in <thought> tags. List each particle you identified and confirm it is a standalone grammatical marker and NOT part of a word.
 
 Style: Calm, Muji-inspired, Teineigo (polite Japanese). Avoid all fluff, praise, or unnatural language mixing. Keep English and Japanese distinct.`
           },
@@ -88,6 +87,51 @@ Style: Calm, Muji-inspired, Teineigo (polite Japanese). Avoid all fluff, praise,
         content = content.replace(/<thought>[\s\S]*?<\/thought>/, '').trim();
       }
     }
+
+    // Post-processing to enforce pedagogical constraints and fix model edge-cases
+    
+    // 1. Fix multiple question marks and ensure single full-width at the end
+    content = content.replace(/[？?]{2,}/g, '？');
+    if (content.endsWith('?')) {
+      content = content.slice(0, -1) + '？';
+    }
+
+    // 2. Remove bolding around English words that are NOT Romaji particles
+    content = content.replace(/\*\*([a-zA-Z]+)\*\*/g, (match, word) => {
+      const allowed = ['wa', 'ga', 'o', 'wo', 'ni', 'de', 'e', 'to', 'mo', 'ka', 'ya'];
+      if (allowed.includes(word.toLowerCase())) {
+        return match;
+      }
+      return word; // Strip bolding
+    });
+
+    // 3. Remove bolding around the copula 'desu' / 'deshita' parts
+    // More comprehensive copula de-bolding:
+    content = content.replace(/\*\*で\*\*(?=す)/g, 'で');
+    content = content.replace(/(?<=す)\*\*か\*\*/g, 'か');
+    content = content.replace(/(?<=です)\*\*か\*\*/g, 'か');
+    content = content.replace(/\*\*で\*\*(?=した)/g, 'で');
+    content = content.replace(/(?<=で)\*\*す\*\*/g, 'す');
+    content = content.replace(/(?<=で)\*\*した\*\*/g, 'した');
+    content = content.replace(/\*\*ですか\*\*/g, 'ですか');
+    content = content.replace(/\*\*でした\*\*/g, 'でした');
+    content = content.replace(/\*\*です\*\*/g, 'です');
+    content = content.replace(/\*\*だ\*\*/g, 'だ');
+
+    // 4. Remove bolding around partial greetings or common words that models mistakenly bold
+    content = content.replace(/\*\*こ\*\*ん\*\*に\*\*ち\*\*は\*\*/g, 'こんにちは');
+    content = content.replace(/\*\*こ\*\*ん\*\*に\*\*ちは/g, 'こんにちは');
+    content = content.replace(/こん\*\*に\*\*ちは/g, 'こんにちは');
+    content = content.replace(/こん\*\*に\*\*ち\*\*は\*\*/g, 'こんにちは');
+    
+    // 5. Remove any remaining ** around single characters that are NOT particles
+    content = content.replace(/\*\*([^\*]+)\*\*/g, (match, word) => {
+      const validParticles = ['は', 'が', 'を', 'に', 'で', 'へ', 'と', 'も', 'か', 'や', 'wa', 'ga', 'o', 'wo', 'ni', 'de', 'e', 'to', 'mo', 'ka', 'ya'];
+      if (validParticles.includes(word.trim().toLowerCase())) {
+        return match;
+      }
+      return word; // Strip bolding from invalid stuff
+    });
 
     res.json({
       content: content,
