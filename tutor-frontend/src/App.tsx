@@ -169,7 +169,7 @@ function App() {
         // Persist the reasoning in the sidebar
         setThoughts([{
           id: 'reasoning',
-          text: data.reasoning,
+          text: (data.reasoning && data.reasoning.trim()) ? data.reasoning : "No pedagogical reasoning provided for this response.",
           status: 'active'
         }]);
         setIsThinking(false);
@@ -243,7 +243,10 @@ function App() {
         <div className="top-bar-right">
           <div 
             className={`mode-toggle ${learningMode ? 'active' : ''}`} 
-            onClick={() => setLearningMode(!learningMode)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setLearningMode(!learningMode);
+            }}
           >
             <span className="mode-text-full">{learningMode ? '🎓 LEARNING MODE ON' : '💬 CHAT MODE'}</span>
             <span className="mode-text-short">{learningMode ? '🎓' : '💬'}</span>
@@ -252,7 +255,8 @@ function App() {
           
           <button 
             className="mobile-toggle-btn right" 
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setIsRightSidebarOpen(!isRightSidebarOpen);
               setIsLeftSidebarOpen(false);
             }}
@@ -277,7 +281,14 @@ function App() {
             <div 
               key={item} 
               className={`nav-item ${activeTab === item ? 'active' : ''}`}
-              onClick={() => setActiveTab(item)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTab(item);
+                // On mobile, close sidebar after selection
+                if (window.innerWidth <= 768) {
+                  setIsLeftSidebarOpen(false);
+                }
+              }}
             >
               {item}
             </div>
@@ -290,7 +301,10 @@ function App() {
             <div 
               key={item.name} 
               className={`nav-item ${referenceTopic === item.name ? 'active' : ''}`}
-              onClick={() => setReferenceTopic(referenceTopic === item.name ? null : item.name)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setReferenceTopic(referenceTopic === item.name ? null : item.name);
+              }}
             >
               {item.name}
             </div>
@@ -336,13 +350,18 @@ function App() {
             <div 
               key={idx} 
               className={`bubble ${msg.role}`}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (msg.role === 'assistant' && msg.reasoning) {
                   setThoughts([{
                     id: 'reasoning',
                     text: msg.reasoning,
                     status: 'active'
                   }]);
+                  // On mobile, if they click a bubble, maybe show the reasoning sidebar automatically
+                  if (window.innerWidth <= 1100) {
+                    setIsRightSidebarOpen(true);
+                  }
                 }
               }}
             >
@@ -351,12 +370,15 @@ function App() {
                 <>
                   <div 
                     className="reasoning-toggle"
-                    onClick={() => setExpandedReasoning(expandedReasoning === idx ? null : idx)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setExpandedReasoning(expandedReasoning === idx ? null : idx);
+                    }}
                   >
                     <span>🧠</span> {expandedReasoning === idx ? 'Hide Reasoning' : 'Show Reasoning'}
                   </div>
                   {expandedReasoning === idx && (
-                    <div className="reasoning-content">
+                    <div className="reasoning-content" onClick={(e) => e.stopPropagation()}>
                       {msg.reasoning}
                     </div>
                   )}
