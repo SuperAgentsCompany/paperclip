@@ -12,11 +12,25 @@ app.use(express.json());
 
 const GEMMA_API_ENDPOINT = "https://gemma4-4b-762452591869.us-central1.run.app/v1/chat/completions";
 
+let userStats = {
+  progress: 15,
+  masteryLevel: "N5",
+  wordsLearned: 120,
+  lessonsCompleted: 5,
+  streakDays: 3
+};
+
 app.post('/api/chat', async (req, res) => {
   const { prompt, context } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });
+  }
+
+  // Update stats slightly on each message
+  userStats.wordsLearned += Math.floor(Math.random() * 3);
+  if (userStats.progress < 100) {
+    userStats.progress += 1;
   }
 
   try {
@@ -74,6 +88,13 @@ Keep your final response (outside <thought> tags) focused and pedagogical. Avoid
     console.error('Server Error:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
+});
+
+app.get('/api/stats', (req, res) => {
+  res.json({
+    ...userStats,
+    lastUpdate: new Date().toISOString()
+  });
 });
 
 app.listen(PORT, () => {

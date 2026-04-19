@@ -109,13 +109,19 @@ function App() {
   }, [messages, thoughts, isLoggedIn]);
 
   const handleSend = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isThinking) return;
 
     const userMessage: Message = { role: 'user', content: inputValue };
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsThinking(true);
     
+    // On mobile, close sidebars when sending a message to focus on chat
+    if (window.innerWidth <= 1100) {
+      setIsLeftSidebarOpen(false);
+      setIsRightSidebarOpen(false);
+    }
+
     const pedagogicalThoughts: Thought[] = [
       { id: '1', text: 'Analyzing student intent...', status: 'active' },
       { id: '2', text: 'Mapping grammatical structures...', status: 'pending' },
@@ -137,7 +143,7 @@ function App() {
       } else {
         clearInterval(thoughtInterval);
       }
-    }, 1000);
+    }, 800);
 
     try {
       const response = await fetch('/api/chat', {
@@ -225,12 +231,18 @@ function App() {
     );
   }
 
+  const closeSidebars = () => {
+    setIsLeftSidebarOpen(false);
+    setIsRightSidebarOpen(false);
+  };
+
   return (
     <div className={`dashboard-container ${isLeftSidebarOpen ? 'left-open' : ''} ${isRightSidebarOpen ? 'right-open' : ''}`}>
       <header className="top-bar">
         <button 
           className="mobile-toggle-btn left" 
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setIsLeftSidebarOpen(!isLeftSidebarOpen);
             setIsRightSidebarOpen(false);
           }}
@@ -238,7 +250,9 @@ function App() {
           {isLeftSidebarOpen ? '✕' : '☰'}
         </button>
         
-        <h1>TUTOR: <span className="title-short">EN-JP</span><span className="title-full">English-Japanese Mastery</span></h1>
+        <div className="top-bar-title">
+          <h1>TUTOR: <span className="title-short">EN-JP</span><span className="title-full">English-Japanese Mastery</span></h1>
+        </div>
         
         <div className="top-bar-right">
           <div 
@@ -268,13 +282,10 @@ function App() {
 
       <div 
         className={`mobile-overlay ${(isLeftSidebarOpen || isRightSidebarOpen) ? 'active' : ''}`} 
-        onClick={() => {
-          setIsLeftSidebarOpen(false);
-          setIsRightSidebarOpen(false);
-        }}
+        onClick={closeSidebars}
       />
 
-      <nav className={`sidebar-left ${isLeftSidebarOpen ? 'mobile-show' : ''}`}>
+      <nav className={`sidebar-left ${isLeftSidebarOpen ? 'mobile-show' : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="nav-group">
           <h3>MENU</h3>
           {navItems.map(item => (
@@ -344,7 +355,7 @@ function App() {
         </div>
       </nav>
 
-      <main className="main-content">
+      <main className="main-content" onClick={closeSidebars}>
         <div className="chat-window">
           {messages.map((msg, idx) => (
             <div 
@@ -358,7 +369,7 @@ function App() {
                     text: msg.reasoning,
                     status: 'active'
                   }]);
-                  // On mobile, if they click a bubble, maybe show the reasoning sidebar automatically
+                  // On mobile, if they click a bubble, show the reasoning sidebar automatically
                   if (window.innerWidth <= 1100) {
                     setIsRightSidebarOpen(true);
                   }
@@ -394,7 +405,7 @@ function App() {
           <div ref={chatEndRef} />
         </div>
 
-        <div className="chat-input-container">
+        <div className="chat-input-container" onClick={(e) => e.stopPropagation()}>
           <input 
             type="text" 
             className="chat-input" 
@@ -402,6 +413,7 @@ function App() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            disabled={isThinking}
           />
           <button className="send-button" onClick={handleSend} disabled={isThinking}>
             {isThinking ? '...' : 'SEND'}
@@ -409,7 +421,7 @@ function App() {
         </div>
       </main>
 
-      <aside className={`sidebar-right ${isRightSidebarOpen ? 'mobile-show' : ''}`}>
+      <aside className={`sidebar-right ${isRightSidebarOpen ? 'mobile-show' : ''}`} onClick={(e) => e.stopPropagation()}>
         <h3>PEDAGOGICAL REASONING</h3>
         <div className="thoughts-stream">
           {thoughts.length === 0 && !isThinking && (

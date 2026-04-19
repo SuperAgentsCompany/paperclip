@@ -23,4 +23,4 @@ Note: Ensure the `tutor-backend` service is also running (default proxy port is 
 - **Responsive Layout**: Designed mobile-first, adhering to 100dvh for optimal viewing.
 - **Session Stats**: Dynamically integrates with the backend API to retrieve active progress.
 
-For an in-depth look at the architecture, please refer to the [TUTOR_FRONTEND_TECHNICAL_DOC.md](https://github.com/SuperAgentsCompany/documentations/blob/main/TUTOR_FRONTEND_TECHNICAL_DOC.md) in our central documentation repository.
+For an in-depth look at the architecture, please refer to the [TUTOR_FRONTEND_TECHNICAL_DOC.md](https://github.com/SuperAgentsCompany/documentations/blob/main/engineering/tutor_frontend.md) in our central documentation repository.
