@@ -80,6 +80,20 @@ import {
   agentConfigurationDoc as hermesAgentConfigurationDoc,
   models as hermesModels,
 } from "hermes-paperclip-adapter";
+
+import {
+  execute as gemma4Execute,
+  testEnvironment as gemma4TestEnvironment,
+  sessionCodec as gemma4SessionCodec,
+  listGemma4Skills as listGemma4Skills,
+  syncGemma4Skills as syncGemma4Skills,
+  detectGemma4AuthRequired as detectModelFromGemma4,
+} from "@paperclipai/adapter-gemma4-local/server";
+import {
+  agentConfigurationDoc as gemma4AgentConfigurationDoc,
+  models as gemma4Models,
+} from "@paperclipai/adapter-gemma4-local";
+
 import { BUILTIN_ADAPTER_TYPES } from "./builtin-adapter-types.js";
 import { buildExternalAdapters } from "./plugin-loader.js";
 import { getDisabledAdapterTypes } from "../services/adapter-plugin-store.js";
@@ -153,6 +167,22 @@ const geminiLocalAdapter: ServerAdapterModule = {
   instructionsPathKey: "instructionsFilePath",
   requiresMaterializedRuntimeSkills: true,
   agentConfigurationDoc: geminiAgentConfigurationDoc,
+};
+
+
+const gemma4LocalAdapter: ServerAdapterModule = {
+  type: "gemma4_local",
+  execute: gemma4Execute,
+  testEnvironment: gemma4TestEnvironment,
+  listSkills: listGemma4Skills,
+  syncSkills: syncGemma4Skills,
+  sessionCodec: gemma4SessionCodec,
+  models: gemma4Models,
+  supportsLocalAgentJwt: true,
+  supportsInstructionsBundle: true,
+  instructionsPathKey: "instructionsFilePath",
+  requiresMaterializedRuntimeSkills: true,
+  agentConfigurationDoc: gemma4AgentConfigurationDoc,
 };
 
 const openclawGatewayAdapter: ServerAdapterModule = {
@@ -235,6 +265,7 @@ function registerBuiltInAdapters() {
     piLocalAdapter,
     cursorLocalAdapter,
     geminiLocalAdapter,
+    gemma4LocalAdapter,
     openclawGatewayAdapter,
     hermesLocalAdapter,
     processAdapter,
