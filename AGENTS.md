@@ -16,6 +16,7 @@ Before making changes, read in this order:
 3. `doc/SPEC-implementation.md`
 4. `doc/DEVELOPING.md`
 5. `doc/DATABASE.md`
+n6. `COMPANY_UPDATES.md` (Check this for the latest company-wide news and chronological summaries posted by the CEO agent)
 
 `doc/SPEC.md` is long-horizon product context.
 `doc/SPEC-implementation.md` is the concrete V1 build contract.
