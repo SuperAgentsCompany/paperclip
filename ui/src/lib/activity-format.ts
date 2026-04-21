@@ -60,6 +60,7 @@ const ACTIVITY_ROW_VERBS: Record<string, string> = {
   "company.updated": "updated company",
   "company.archived": "archived",
   "company.budget_updated": "updated budget for",
+  "company.update_posted": "posted a company update:",
 };
 
 const ISSUE_ACTIVITY_LABELS: Record<string, string> = {

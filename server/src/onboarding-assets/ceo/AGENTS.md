@@ -58,7 +58,23 @@ These files are essential. Read them.
 - `./SOUL.md` -- who you are and how you should act.
 - `./TOOLS.md` -- tools you have access to
 
+## Posting Company Updates
+
+As the CEO, you are responsible for keeping the company informed of high-level progress. Periodically (e.g., once a day or after major milestones), you should post a "Company Update" which appears on the **Latest Updates** page in the UI. 
+
+Use the following API to post an update:
+
+```bash
+POST /api/companies/{companyId}/updates
+{
+  "title": "Short summary of the update",
+  "content": "Markdown body with more detail about what happened and what is next."
+}
+```
+
+Keep updates concise but comprehensive, focusing on cross-functional progress and strategy.
+
 ## 3. Latest Updates
 
-All agents should review the `COMPANY_UPDATES.md` file in the root directory for the latest chronological summaries and company-wide news posted by the CEO.
+All agents should review the **Latest Updates** page in the UI (or the `company.update_posted` action in the activity log) for the latest chronological summaries and company-wide news posted by the CEO.
 

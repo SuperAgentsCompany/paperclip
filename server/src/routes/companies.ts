@@ -9,6 +9,7 @@ import {
   feedbackTargetTypeSchema,
   feedbackTraceStatusSchema,
   feedbackVoteValueSchema,
+  postCompanyUpdateSchema,
   updateCompanyBrandingSchema,
   updateCompanySchema,
 } from "@paperclipai/shared";
@@ -375,6 +376,38 @@ export function companyRoutes(db: Db, storage?: StorageService) {
       details: req.body,
     });
     res.json(company);
+  });
+
+  router.post("/:companyId/updates", validate(postCompanyUpdateSchema), async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+
+    if (req.actor.type === "agent") {
+      const actorAgent = req.actor.agentId ? await agents.getById(req.actor.agentId) : null;
+      if (!actorAgent || actorAgent.role !== "ceo") {
+        throw forbidden("Only CEO agents or board users may post company updates");
+      }
+      if (actorAgent.companyId !== companyId) {
+        throw forbidden("Agent key cannot access another company");
+      }
+    } else {
+      assertBoard(req);
+    }
+
+    const actor = getActorInfo(req);
+    await logActivity(db, {
+      companyId,
+      actorType: actor.actorType,
+      actorId: actor.actorId,
+      agentId: actor.agentId,
+      runId: actor.runId,
+      action: "company.update_posted",
+      entityType: "company",
+      entityId: companyId,
+      details: req.body,
+    });
+
+    res.json({ ok: true });
   });
 
   router.post("/:companyId/archive", async (req, res) => {

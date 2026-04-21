@@ -46,4 +46,12 @@ export const updateCompanyBrandingSchema = z
     "At least one branding field must be provided",
   );
 
+
 export type UpdateCompanyBranding = z.infer<typeof updateCompanyBrandingSchema>;
+
+export const postCompanyUpdateSchema = z.object({
+  title: z.string().min(1).optional().nullable(),
+  content: z.string().min(1),
+});
+
+export type PostCompanyUpdate = z.infer<typeof postCompanyUpdateSchema>;

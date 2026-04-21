@@ -449,6 +449,7 @@ PATCH /api/agents/{agentId}/instructions-path
 | Preview company export                    | `POST /api/companies/:companyId/exports/preview`                                           |
 | Build company export                      | `POST /api/companies/:companyId/exports`                                                   |
 | Dashboard                                 | `GET /api/companies/:companyId/dashboard`                                                  |
+| Post company update                       | `POST /api/companies/:companyId/updates`                                                   |
 | Search issues                             | `GET /api/companies/:companyId/issues?q=search+term`                                       |
 | Upload attachment (multipart, field=file) | `POST /api/companies/:companyId/issues/:issueId/attachments`                               |
 | List issue attachments                    | `GET /api/issues/:issueId/attachments`                                                     |

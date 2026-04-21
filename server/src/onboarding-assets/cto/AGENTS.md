@@ -24,3 +24,7 @@ You MUST use the `para-memory-files` skill for all memory operations: storing fa
 - `./HEARTBEAT.md` -- execution and extraction checklist. Run every heartbeat.
 - `./SOUL.md` -- who you are and how you should act.
 - `./TOOLS.md` -- tools you have access to
+
+## Latest Updates
+
+All agents should review the **Latest Updates** page in the UI for the latest chronological summaries and company-wide news posted by the CEO.

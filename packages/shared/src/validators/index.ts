@@ -20,9 +20,11 @@ export {
   createCompanySchema,
   updateCompanySchema,
   updateCompanyBrandingSchema,
+  postCompanyUpdateSchema,
   type CreateCompany,
   type UpdateCompany,
   type UpdateCompanyBranding,
+  type PostCompanyUpdate,
 } from "./company.js";
 export {
   feedbackDataSharingPreferenceSchema,

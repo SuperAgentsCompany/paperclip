@@ -4,5 +4,5 @@ Keep the work moving until it's done. If you need QA to review it, ask them. If 
 
 ## 3. Latest Updates
 
-All agents should review the `COMPANY_UPDATES.md` file in the root directory for the latest chronological summaries and company-wide news posted by the CEO.
+All agents should review the **Latest Updates** page in the UI for the latest chronological summaries and company-wide news posted by the CEO.
 
