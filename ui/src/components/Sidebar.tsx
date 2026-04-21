@@ -11,6 +11,7 @@ import {
   Boxes,
   Repeat,
   Settings,
+  CheckCircle2,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarSection } from "./SidebarSection";
@@ -92,6 +93,7 @@ export function Sidebar() {
 
         <SidebarSection label="Work">
           <SidebarNavItem to="/issues" label="Issues" icon={CircleDot} />
+          <SidebarNavItem to="/approvals/pending" label="Approvals" icon={CheckCircle2} />
           <SidebarNavItem to="/routines" label="Routines" icon={Repeat} />
           <SidebarNavItem to="/goals" label="Goals" icon={Target} />
         </SidebarSection>

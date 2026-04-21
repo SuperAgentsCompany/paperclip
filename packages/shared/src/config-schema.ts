@@ -103,6 +103,10 @@ export const telemetryConfigSchema = z.object({
   enabled: z.boolean().default(true),
 }).default({});
 
+export const redisConfigSchema = z.object({
+  url: z.string().optional(),
+});
+
 export const paperclipConfigSchema = z
   .object({
     $meta: configMetaSchema,
@@ -111,6 +115,7 @@ export const paperclipConfigSchema = z
     logging: loggingConfigSchema,
     server: serverConfigSchema,
     telemetry: telemetryConfigSchema,
+    redis: redisConfigSchema.default({}),
     auth: authConfigSchema.default({
       baseUrlMode: "auto",
       disableSignUp: false,

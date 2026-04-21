@@ -86,6 +86,7 @@ export interface Config {
   heartbeatSchedulerIntervalMs: number;
   companyDeletionEnabled: boolean;
   telemetryEnabled: boolean;
+  redisUrl: string | undefined;
 }
 
 function detectTailnetBindHost(): string | undefined {

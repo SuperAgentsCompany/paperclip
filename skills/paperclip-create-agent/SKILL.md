@@ -82,8 +82,8 @@ curl -sS -X POST "$PAPERCLIP_API_URL/api/companies/$PAPERCLIP_COMPANY_ID/agent-h
     "reportsTo": "<ceo-agent-id>",
     "capabilities": "Owns technical roadmap, architecture, staffing, execution",
     "desiredSkills": ["vercel-labs/agent-browser/agent-browser"],
-    "adapterType": "codex_local",
-    "adapterConfig": {"cwd": "/abs/path/to/repo", "model": "o4-mini"},
+    "adapterType": "gemini_local",
+    "adapterConfig": {"model": "auto"},
     "runtimeConfig": {"heartbeat": {"enabled": false, "wakeOnDemand": true}},
     "sourceIssueId": "<issue-id>"
   }'

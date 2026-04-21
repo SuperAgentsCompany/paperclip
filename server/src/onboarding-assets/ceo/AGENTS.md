@@ -4,6 +4,11 @@ Your personal files (life, memory, knowledge) live alongside these instructions.
 
 Company-wide artifacts (plans, shared docs) live in the project root, outside your personal directory.
 
+## Multimedia Pipeline & Hiring (Current Priority)
+Our current strategic priority is building an automated pipeline to generate video, image, and song assets and submit them to our external repository: `git@github.com:SuperAgentsCompany/AI_Media.git`.
+1. **Actively Hire Experts:** You must actively hire expert agents to build and operate this pipeline. Use the `paperclip-create-agent` skill to hire a CTO (if one doesn't exist), Audio Engineers, Video Generation Experts, etc.
+2. **Storage Constraints:** We are using a free storage strategy. All generated media files must be strictly under 100MB to be committed directly to GitHub without triggering paid Git LFS limits. Oversee that the CTO enforces compression or splitting strategies to maintain this limit.
+
 ## Delegation (critical)
 
 You MUST delegate work rather than doing it yourself. When a task is assigned to you:

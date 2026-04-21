@@ -2436,6 +2436,8 @@ function AgentSkillsTab({
   const [skillDraft, setSkillDraft] = useState<string[]>([]);
   const [lastSavedSkills, setLastSavedSkills] = useState<string[]>([]);
   const [unmanagedOpen, setUnmanagedOpen] = useState(false);
+  const [skillSearchQuery, setSkillSearchQuery] = useState("");
+  const [skillFilterMode, setSkillFilterMode] = useState<"all" | "selected" | "unselected">("selected");
   const lastSavedSkillsRef = useRef<string[]>([]);
   const hasHydratedSkillSnapshotRef = useRef(false);
   const skipNextSkillAutosaveRef = useRef(true);
@@ -2521,9 +2523,24 @@ function AgentSkillsTab({
     [skillSnapshot],
   );
   const optionalSkillRows = useMemo<SkillRow[]>(
-    () =>
-      (companySkills ?? [])
-        .filter((skill) => !adapterEntryByKey.get(skill.key)?.required)
+    () => {
+      const q = skillSearchQuery.toLowerCase();
+      return (companySkills ?? [])
+        .filter((skill) => {
+          if (adapterEntryByKey.get(skill.key)?.required) return false;
+          
+          if (q) {
+            const matchesName = skill.name.toLowerCase().includes(q);
+            const matchesDesc = skill.description?.toLowerCase().includes(q);
+            if (!matchesName && !matchesDesc) return false;
+          }
+
+          const isSelected = skillDraft.includes(skill.key);
+          if (skillFilterMode === "selected" && !isSelected) return false;
+          if (skillFilterMode === "unselected" && isSelected) return false;
+
+          return true;
+        })
         .map((skill) => ({
           id: skill.id,
           key: skill.key,
@@ -2535,12 +2552,16 @@ function AgentSkillsTab({
           linkTo: `/skills/${skill.id}`,
           readOnly: false,
           adapterEntry: adapterEntryByKey.get(skill.key) ?? null,
-        })),
-    [adapterEntryByKey, companySkills],
+        }));
+    },
+    [adapterEntryByKey, companySkills, skillSearchQuery, skillFilterMode, skillDraft],
   );
   const requiredSkillRows = useMemo<SkillRow[]>(
-    () =>
-      (skillSnapshot?.entries ?? [])
+    () => {
+      if (skillFilterMode === "unselected") return [];
+      const q = skillSearchQuery.toLowerCase();
+
+      return (skillSnapshot?.entries ?? [])
         .filter((entry) => entry.required)
         .map((entry) => {
           const companySkill = companySkillByKey.get(entry.key);
@@ -2556,14 +2577,24 @@ function AgentSkillsTab({
             readOnly: false,
             adapterEntry: entry,
           };
-        }),
-    [companySkillByKey, skillSnapshot],
+        })
+        .filter((row) => {
+          if (!q) return true;
+          const matchesName = row.name.toLowerCase().includes(q);
+          const matchesDesc = row.description?.toLowerCase().includes(q);
+          return matchesName || matchesDesc;
+        });
+    },
+    [companySkillByKey, skillSnapshot, skillFilterMode, skillSearchQuery],
   );
   const unmanagedSkillRows = useMemo<SkillRow[]>(
-    () =>
-      (skillSnapshot?.entries ?? [])
+    () => {
+      if (skillFilterMode === "unselected") return [];
+      const q = skillSearchQuery.toLowerCase();
+
+      return (skillSnapshot?.entries ?? [])
         .filter((entry) => isReadOnlyUnmanagedSkillEntry(entry, companySkillKeys))
-        .map((entry) => ({
+        .map((entry): SkillRow => ({
           id: `external:${entry.key}`,
           key: entry.key,
           name: entry.runtimeName ?? entry.key,
@@ -2574,8 +2605,15 @@ function AgentSkillsTab({
           linkTo: null,
           readOnly: true,
           adapterEntry: entry,
-        })),
-    [companySkillKeys, skillSnapshot],
+        }))
+        .filter((row) => {
+          if (!q) return true;
+          const matchesName = row.name.toLowerCase().includes(q);
+          const matchesDesc = row.description?.toLowerCase().includes(q);
+          return matchesName || matchesDesc;
+        });
+    },
+    [companySkillKeys, skillSnapshot, skillFilterMode, skillSearchQuery],
   );
   const desiredOnlyMissingSkills = useMemo(
     () => skillDraft.filter((key) => !companySkillByKey.has(key)),
@@ -2642,6 +2680,24 @@ function AgentSkillsTab({
         <PageSkeleton variant="list" />
       ) : (
         <>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 pb-3 pt-1">
+            <input 
+              type="text" 
+              placeholder="Filter skills..." 
+              value={skillSearchQuery} 
+              onChange={(e) => setSkillSearchQuery(e.target.value)} 
+              className="w-full sm:w-64 rounded-md border border-border px-2.5 py-1.5 bg-transparent outline-none text-sm placeholder:text-muted-foreground/40" 
+            />
+            <select 
+              value={skillFilterMode} 
+              onChange={(e) => setSkillFilterMode(e.target.value as any)} 
+              className="w-full sm:w-auto rounded-md border border-border px-2.5 py-1.5 bg-transparent outline-none text-sm text-foreground appearance-none cursor-pointer"
+            >
+              <option value="all">All Skills</option>
+              <option value="selected">Selected</option>
+              <option value="unselected">Unselected</option>
+            </select>
+          </div>
           {(() => {
             const renderSkillRow = (skill: SkillRow) => {
               const adapterEntry = skill.adapterEntry ?? adapterEntryByKey.get(skill.key);
@@ -2737,8 +2793,10 @@ function AgentSkillsTab({
             if (optionalSkillRows.length === 0 && requiredSkillRows.length === 0 && unmanagedSkillRows.length === 0) {
               return (
                 <section className="border-y border-border">
-                  <div className="px-3 py-6 text-sm text-muted-foreground">
-                    Import skills into the company library first, then attach them here.
+                  <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                    {(skillSearchQuery || skillFilterMode !== "all") 
+                      ? "No skills match your current filters."
+                      : "Import skills into the company library first, then attach them here."}
                   </div>
                 </section>
               );
